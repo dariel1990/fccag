@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { ref, watch } from 'vue';
+import {
+    store as storeParticipant,
+    update as updateParticipant,
+} from '@/actions/App/Http/Controllers/ParticipantController';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -15,8 +17,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { store as storeParticipant, update as updateParticipant } from '@/actions/App/Http/Controllers/ParticipantController';
-import { useIsMobile, useApiBaseUrl } from '@/composables/useDataSource';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type Participant = {
     id: number;
@@ -51,15 +53,14 @@ const emit = defineEmits<{
     saved: [];
 }>();
 
-const isMobile = useIsMobile();
-const apiBaseUrl = useApiBaseUrl();
-
 const isEdit = ref(false);
 const isProcessing = ref(false);
 const errors = ref<Record<string, string>>({});
 
 const cellGroupOptions = ref<DropdownOption[]>(props.cellGroups ?? []);
-const classificationOptions = ref<ClassificationOption[]>(props.classifications ?? []);
+const classificationOptions = ref<ClassificationOption[]>(
+    props.classifications ?? [],
+);
 const ministryOptions = ref<DropdownOption[]>(props.ministries ?? []);
 const departmentOptions = ref<DropdownOption[]>(props.departments ?? []);
 
@@ -78,41 +79,14 @@ const form = ref({
     is_active: true,
 });
 
-async function fetchFormOptions() {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-
-    try {
-        const response = await fetch(`${apiBaseUrl}/api/participants/form-options`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'application/json',
-            },
-        });
-        if (response.ok) {
-            const data = await response.json();
-            cellGroupOptions.value = data.cell_groups;
-            classificationOptions.value = data.classifications;
-            ministryOptions.value = data.ministries;
-            departmentOptions.value = data.departments;
-        }
-    } catch {
-        // Silently fail
-    }
-}
-
 watch(
     () => props.open,
     (isOpen) => {
         if (isOpen) {
-            if (isMobile) {
-                fetchFormOptions();
-            } else {
-                cellGroupOptions.value = props.cellGroups ?? [];
-                classificationOptions.value = props.classifications ?? [];
-                ministryOptions.value = props.ministries ?? [];
-                departmentOptions.value = props.departments ?? [];
-            }
+            cellGroupOptions.value = props.cellGroups ?? [];
+            classificationOptions.value = props.classifications ?? [];
+            ministryOptions.value = props.ministries ?? [];
+            departmentOptions.value = props.departments ?? [];
 
             if (props.participant) {
                 isEdit.value = true;
@@ -124,7 +98,8 @@ watch(
                     contact_number: props.participant.contact_number || '',
                     address: props.participant.address || '',
                     cell_group_id: props.participant.cell_group_id ?? null,
-                    classification_id: props.participant.classification_id ?? null,
+                    classification_id:
+                        props.participant.classification_id ?? null,
                     department_id: props.participant.department_id ?? null,
                     ministry_ids: props.participant.ministry_ids ?? [],
                     date_joined: props.participant.date_joined,
@@ -152,75 +127,32 @@ watch(
     },
 );
 
-async function submit() {
+function submit() {
     isProcessing.value = true;
     errors.value = {};
 
-    if (!isMobile) {
-        // Desktop: use Inertia router with cookie-based session auth
-        const options = {
-            preserveScroll: true,
-            onSuccess: () => {
-                emit('saved');
-                handleClose();
-            },
-            onError: (errs: Record<string, string>) => {
-                errors.value = errs;
-            },
-            onFinish: () => {
-                isProcessing.value = false;
-            },
-        };
-
-        if (isEdit.value) {
-            router.put(updateParticipant(props.participant!.id).url, form.value, options);
-        } else {
-            router.post(storeParticipant().url, form.value, options);
-        }
-        return;
-    }
-
-    // Mobile: use Bearer token against the API
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        window.location.href = '/mobile/login';
-        return;
-    }
-
-    try {
-        const url = isEdit.value
-            ? `${apiBaseUrl}/api/participants/${props.participant!.id}`
-            : `${apiBaseUrl}/api/participants`;
-
-        const response = await fetch(url, {
-            method: isEdit.value ? 'PUT' : 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify(form.value),
-        });
-
-        if (response.status === 422) {
-            const data = await response.json();
-            if (data.errors) {
-                errors.value = Object.fromEntries(
-                    Object.entries(data.errors).map(([key, msgs]) => [
-                        key,
-                        (msgs as string[])[0],
-                    ]),
-                );
-            }
-            return;
-        }
-
-        if (response.ok) {
+    const options = {
+        preserveScroll: true,
+        onSuccess: () => {
             emit('saved');
             handleClose();
-        }
-    } finally {
-        isProcessing.value = false;
+        },
+        onError: (errs: Record<string, string>) => {
+            errors.value = errs;
+        },
+        onFinish: () => {
+            isProcessing.value = false;
+        },
+    };
+
+    if (isEdit.value) {
+        router.put(
+            updateParticipant(props.participant!.id).url,
+            form.value,
+            options,
+        );
+    } else {
+        router.post(storeParticipant().url, form.value, options);
     }
 }
 
@@ -250,10 +182,11 @@ function getError(field: string) {
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-3 sm:space-y-4">
-                <!-- Name -->
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div class="space-y-1.5">
-                        <Label for="first_name" class="text-xs sm:text-sm">First Name</Label>
+                        <Label for="first_name" class="text-xs sm:text-sm"
+                            >First Name</Label
+                        >
                         <Input
                             id="first_name"
                             v-model="form.first_name"
@@ -261,11 +194,16 @@ function getError(field: string) {
                             placeholder="First name"
                             class="h-8 text-xs sm:h-9 sm:text-sm"
                         />
-                        <InputError :message="getError('first_name')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('first_name')"
+                            class="text-[10px]"
+                        />
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="last_name" class="text-xs sm:text-sm">Last Name</Label>
+                        <Label for="last_name" class="text-xs sm:text-sm"
+                            >Last Name</Label
+                        >
                         <Input
                             id="last_name"
                             v-model="form.last_name"
@@ -273,14 +211,18 @@ function getError(field: string) {
                             placeholder="Last name"
                             class="h-8 text-xs sm:h-9 sm:text-sm"
                         />
-                        <InputError :message="getError('last_name')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('last_name')"
+                            class="text-[10px]"
+                        />
                     </div>
                 </div>
 
-                <!-- Gender & Birthday -->
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div class="space-y-1.5">
-                        <Label for="gender" class="text-xs sm:text-sm">Gender</Label>
+                        <Label for="gender" class="text-xs sm:text-sm"
+                            >Gender</Label
+                        >
                         <Multiselect
                             id="gender"
                             v-model="form.gender"
@@ -288,38 +230,51 @@ function getError(field: string) {
                             placeholder="Select gender"
                             :searchable="false"
                             :can-clear="false"
-                           
                         />
-                        <InputError :message="getError('gender')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('gender')"
+                            class="text-[10px]"
+                        />
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="birthday" class="text-xs sm:text-sm">Birthday</Label>
+                        <Label for="birthday" class="text-xs sm:text-sm"
+                            >Birthday</Label
+                        >
                         <Input
                             id="birthday"
                             v-model="form.birthday"
                             type="date"
                             class="h-8 text-xs sm:h-9 sm:text-sm"
                         />
-                        <InputError :message="getError('birthday')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('birthday')"
+                            class="text-[10px]"
+                        />
                     </div>
                 </div>
 
-                <!-- Contact & Date Joined -->
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div class="space-y-1.5">
-                        <Label for="contact_number" class="text-xs sm:text-sm">Contact Number</Label>
+                        <Label for="contact_number" class="text-xs sm:text-sm"
+                            >Contact Number</Label
+                        >
                         <Input
                             id="contact_number"
                             v-model="form.contact_number"
                             placeholder="Contact number"
                             class="h-8 text-xs sm:h-9 sm:text-sm"
                         />
-                        <InputError :message="getError('contact_number')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('contact_number')"
+                            class="text-[10px]"
+                        />
                     </div>
 
                     <div class="space-y-1.5">
-                        <Label for="date_joined" class="text-xs sm:text-sm">Date Joined</Label>
+                        <Label for="date_joined" class="text-xs sm:text-sm"
+                            >Date Joined</Label
+                        >
                         <Input
                             id="date_joined"
                             v-model="form.date_joined"
@@ -327,23 +282,29 @@ function getError(field: string) {
                             required
                             class="h-8 text-xs sm:h-9 sm:text-sm"
                         />
-                        <InputError :message="getError('date_joined')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('date_joined')"
+                            class="text-[10px]"
+                        />
                     </div>
                 </div>
 
-                <!-- Address -->
                 <div class="space-y-1.5">
-                    <Label for="address" class="text-xs sm:text-sm">Address</Label>
+                    <Label for="address" class="text-xs sm:text-sm"
+                        >Address</Label
+                    >
                     <Input
                         id="address"
                         v-model="form.address"
                         placeholder="Full address"
                         class="h-8 text-xs sm:h-9 sm:text-sm"
                     />
-                    <InputError :message="getError('address')" class="text-[10px]" />
+                    <InputError
+                        :message="getError('address')"
+                        class="text-[10px]"
+                    />
                 </div>
 
-                <!-- Cell Group & Classification -->
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div class="space-y-1.5">
                         <Label class="text-xs sm:text-sm">Cell Group</Label>
@@ -355,9 +316,11 @@ function getError(field: string) {
                             placeholder="Select cell group"
                             :searchable="true"
                             :can-clear="true"
-                           
                         />
-                        <InputError :message="getError('cell_group_id')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('cell_group_id')"
+                            class="text-[10px]"
+                        />
                     </div>
 
                     <div class="space-y-1.5">
@@ -370,13 +333,14 @@ function getError(field: string) {
                             placeholder="Select classification"
                             :searchable="true"
                             :can-clear="true"
-                           
                         />
-                        <InputError :message="getError('classification_id')" class="text-[10px]" />
+                        <InputError
+                            :message="getError('classification_id')"
+                            class="text-[10px]"
+                        />
                     </div>
                 </div>
 
-                <!-- Department -->
                 <div class="space-y-1.5">
                     <Label class="text-xs sm:text-sm">Department</Label>
                     <Multiselect
@@ -388,10 +352,12 @@ function getError(field: string) {
                         :searchable="true"
                         :can-clear="true"
                     />
-                    <InputError :message="getError('department_id')" class="text-[10px]" />
+                    <InputError
+                        :message="getError('department_id')"
+                        class="text-[10px]"
+                    />
                 </div>
 
-                <!-- Ministries -->
                 <div class="space-y-1.5">
                     <Label class="text-xs sm:text-sm">Ministries</Label>
                     <Multiselect
@@ -403,19 +369,22 @@ function getError(field: string) {
                         placeholder="Select ministries"
                         :searchable="true"
                         :close-on-select="false"
-                       
                     />
-                    <InputError :message="getError('ministry_ids')" class="text-[10px]" />
+                    <InputError
+                        :message="getError('ministry_ids')"
+                        class="text-[10px]"
+                    />
                 </div>
 
-                <!-- Active -->
                 <div class="flex items-center gap-2">
                     <Checkbox
                         id="is_active"
                         :model-value="form.is_active"
                         @update:model-value="form.is_active = $event as boolean"
                     />
-                    <Label for="is_active" class="text-xs sm:text-sm">Active</Label>
+                    <Label for="is_active" class="text-xs sm:text-sm"
+                        >Active</Label
+                    >
                 </div>
 
                 <DialogFooter class="flex flex-col-reverse gap-2 sm:flex-row">

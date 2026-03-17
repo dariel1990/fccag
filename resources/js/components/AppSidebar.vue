@@ -19,9 +19,9 @@ import { index as cellGroupsIndex } from '@/actions/App/Http/Controllers/CellGro
 import { index as classificationsIndex } from '@/actions/App/Http/Controllers/ClassificationController';
 import { index as departmentsIndex } from '@/actions/App/Http/Controllers/DepartmentController';
 import { index as ministriesIndex } from '@/actions/App/Http/Controllers/MinistryController';
-import { index as blogIndex } from '@/actions/App/Http/Controllers/PostController';
 import { index as participantsIndex } from '@/actions/App/Http/Controllers/ParticipantController';
 import { index as pastorsIndex } from '@/actions/App/Http/Controllers/PastorController';
+import { index as blogIndex } from '@/actions/App/Http/Controllers/PostController';
 import { quarterlyReport } from '@/actions/App/Http/Controllers/ReportController';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';

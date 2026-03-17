@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { Pencil, Check, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import {
     index,
     edit,
-    destroy,
 } from '@/actions/App/Http/Controllers/ParticipantController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
@@ -57,18 +56,6 @@ const participantData = ref<Participant | null>(props.participant || null);
 const attendanceData = ref<AttendanceRecord[]>(
     props.attendanceHistory || [],
 );
-
-function deleteParticipant() {
-    if (!currentParticipant.value) return;
-
-    if (
-        confirm(
-            `Are you sure you want to delete "${currentParticipant.value.full_name}"? This will also delete all their attendance records.`,
-        )
-    ) {
-        router.delete(destroy(currentParticipant.value.id).url);
-    }
-}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

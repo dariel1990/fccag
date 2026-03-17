@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { quarterlyReport } from '@/actions/App/Http/Controllers/ReportController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +13,7 @@ import {
     TableRow,
     TableEmpty,
 } from '@/components/ui/table';
-import { useIsMobile, useApiBaseUrl } from '@/composables/useDataSource';
 import AppLayout from '@/layouts/AppLayout.vue';
-import MobileLayout from '@/layouts/mobile/MobileLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
 type ReportEntry = {
@@ -51,9 +49,6 @@ type Props = {
 
 const props = defineProps<Props>();
 
-const isMobile = useIsMobile();
-const apiBaseUrl = useApiBaseUrl();
-
 const report = ref<ReportEntry[]>(props.report || []);
 const summary = ref<Summary>(
     props.summary || {
@@ -72,43 +67,6 @@ const filters = ref(
     },
 );
 const availableYears = ref<number[]>(props.availableYears || []);
-const isLoading = ref(false);
-
-async function fetchReport(year: number, quarter: number) {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-
-    isLoading.value = true;
-    try {
-        const response = await fetch(
-            `${apiBaseUrl}/api/reports/quarterly?year=${year}&quarter=${quarter}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            },
-        );
-
-        if (response.ok) {
-            const data = await response.json();
-            report.value = data.report;
-            summary.value = data.summary;
-            filters.value = data.filters;
-            availableYears.value = data.available_years;
-        }
-    } catch {
-        // Silently fail
-    } finally {
-        isLoading.value = false;
-    }
-}
-
-onMounted(async () => {
-    if (isMobile) {
-        await fetchReport(filters.value.year, filters.value.quarter);
-    }
-});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -125,15 +83,11 @@ const quarterLabels: Record<number, string> = {
 };
 
 function applyFilters(year: number, quarter: number) {
-    if (isMobile) {
-        fetchReport(year, quarter);
-    } else {
-        router.get(
-            quarterlyReport().url,
-            { year, quarter },
-            { preserveState: true },
-        );
-    }
+    router.get(
+        quarterlyReport().url,
+        { year, quarter },
+        { preserveState: true },
+    );
 }
 
 function badgeVariant(
@@ -152,8 +106,6 @@ function badgeVariant(
             return 'secondary';
     }
 }
-
-const Layout = isMobile ? MobileLayout : AppLayout;
 </script>
 
 <template>
@@ -161,11 +113,8 @@ const Layout = isMobile ? MobileLayout : AppLayout;
         :title="`Quarterly Report - ${quarterLabels[filters.quarter]} ${filters.year}`"
     />
 
-    <component :is="Layout" :breadcrumbs="isMobile ? undefined : breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-6"
-            :class="isMobile ? 'pb-4' : 'p-4'"
-        >
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-1 flex-col gap-6 p-4">
             <div class="flex items-center justify-between">
                 <Heading
                     title="Quarterly Report"
@@ -173,7 +122,6 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                 />
             </div>
 
-            <!-- Filters -->
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2">
                     <label class="text-sm font-medium">Year:</label>
@@ -223,20 +171,9 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                 </div>
             </div>
 
-            <!-- Loading state -->
-            <div v-if="isLoading" class="flex items-center justify-center py-8">
-                <div class="text-muted-foreground">Loading report...</div>
-            </div>
-
-            <template v-else>
-                <!-- Summary Cards -->
+            <template>
                 <div
-                    class="grid gap-4"
-                    :class="
-                        isMobile
-                            ? 'grid-cols-2'
-                            : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'
-                    "
+                    class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6"
                 >
                     <div
                         class="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
@@ -296,7 +233,6 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                     </div>
                 </div>
 
-                <!-- Report Table -->
                 <div
                     class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
                 >
@@ -304,12 +240,8 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead v-if="!isMobile">
-                                    Cell Group
-                                </TableHead>
-                                <TableHead v-if="!isMobile">
-                                    Ministry
-                                </TableHead>
+                                <TableHead>Cell Group</TableHead>
+                                <TableHead>Ministry</TableHead>
                                 <TableHead class="text-center">
                                     Attended
                                 </TableHead>
@@ -320,10 +252,7 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableEmpty
-                                v-if="report.length === 0"
-                                :colspan="isMobile ? 4 : 7"
-                            >
+                            <TableEmpty v-if="report.length === 0" colspan="7">
                                 No data available for this quarter.
                             </TableEmpty>
                             <TableRow
@@ -331,24 +260,12 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                                 :key="entry.participant_id"
                             >
                                 <TableCell class="font-medium">
-                                    <div>{{ entry.full_name }}</div>
-                                    <div
-                                        v-if="isMobile"
-                                        class="text-xs text-muted-foreground"
-                                    >
-                                        {{ entry.cell_group || '—' }}
-                                    </div>
+                                    {{ entry.full_name }}
                                 </TableCell>
-                                <TableCell
-                                    v-if="!isMobile"
-                                    class="text-muted-foreground"
-                                >
+                                <TableCell class="text-muted-foreground">
                                     {{ entry.cell_group || '—' }}
                                 </TableCell>
-                                <TableCell
-                                    v-if="!isMobile"
-                                    class="text-muted-foreground"
-                                >
+                                <TableCell class="text-muted-foreground">
                                     {{ entry.ministry || '—' }}
                                 </TableCell>
                                 <TableCell class="text-center">
@@ -376,5 +293,5 @@ const Layout = isMobile ? MobileLayout : AppLayout;
                 </div>
             </template>
         </div>
-    </component>
+    </AppLayout>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import {
     Plus,
     Pencil,
@@ -7,20 +7,17 @@ import {
     Search,
     X,
     Filter,
-    Users,
-    CheckCircle2,
-    Circle,
     Eye,
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import {
     index,
-    create,
-    show,
-    edit,
     destroy,
 } from '@/actions/App/Http/Controllers/ParticipantController';
 import Heading from '@/components/Heading.vue';
+import DeleteConfirmDialog from '@/components/participants/DeleteConfirmDialog.vue';
+import ParticipantFormDialog from '@/components/participants/ParticipantFormDialog.vue';
+import ParticipantViewDialog from '@/components/participants/ParticipantViewDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,9 +32,6 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import ParticipantViewDialog from '@/components/participants/ParticipantViewDialog.vue';
-import ParticipantFormDialog from '@/components/participants/ParticipantFormDialog.vue';
-import DeleteConfirmDialog from '@/components/participants/DeleteConfirmDialog.vue';
 
 type Participant = {
     id: number;

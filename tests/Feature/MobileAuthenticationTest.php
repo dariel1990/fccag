@@ -10,13 +10,6 @@ class MobileAuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_mobile_login_page_can_be_rendered(): void
-    {
-        $response = $this->get(route('mobile.login'));
-
-        $response->assertOk();
-    }
-
     public function test_dashboard_redirects_unauthenticated_guest(): void
     {
         $response = $this->get('/dashboard');
@@ -139,15 +132,6 @@ class MobileAuthenticationTest extends TestCase
         $response = $this->get(route('dashboard'));
 
         $response->assertRedirect();
-    }
-
-    public function test_home_redirects_mobile_guest_to_mobile_login(): void
-    {
-        $response = $this->withHeaders([
-            'User-Agent' => 'NativePHP/1.0',
-        ])->get('/');
-
-        $response->assertRedirect('/mobile/login');
     }
 
     public function test_home_does_not_redirect_desktop_guest(): void

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { Check, X, TrendingUp } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
@@ -12,7 +11,6 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useIsMobile, useApiBaseUrl } from '@/composables/useDataSource';
 
 type Participant = {
     id: number;
@@ -47,9 +45,6 @@ const emit = defineEmits<{
     'update:open': [value: boolean];
 }>();
 
-const isMobile = useIsMobile();
-const apiBaseUrl = useApiBaseUrl();
-
 const participantData = ref<Participant | null>(null);
 const attendanceData = ref<AttendanceRecord[]>([]);
 const isLoading = ref(false);
@@ -57,35 +52,13 @@ const isLoading = ref(false);
 async function fetchParticipant(id: number) {
     isLoading.value = true;
     try {
-        let response: Response;
-
-        if (isMobile) {
-            const token = localStorage.getItem('auth_token');
-            if (!token) {
-                window.location.href = '/mobile/login';
-                return;
-            }
-            response = await fetch(`${apiBaseUrl}/api/participants/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
-            if (response.status === 401) {
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('auth_user');
-                window.location.href = '/mobile/login';
-                return;
-            }
-        } else {
-            response = await fetch(`/participants/${id}`, {
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
-        }
+        const response = await fetch(`/participants/${id}`, {
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
 
         if (response.ok) {
             const data = await response.json();
@@ -161,7 +134,6 @@ function handleClose() {
                 </DialogDescription>
             </DialogHeader>
 
-            <!-- Loading State -->
             <div v-if="isLoading" class="space-y-3">
                 <div class="space-y-1.5">
                     <Skeleton class="h-4 w-40" />
@@ -175,21 +147,25 @@ function handleClose() {
                 <Skeleton class="h-24 sm:h-32" />
             </div>
 
-            <!-- Content -->
             <div v-else-if="participantData" class="space-y-4">
-                <!-- Attendance Stats -->
                 <div class="grid grid-cols-3 gap-3">
                     <Card class="bg-primary/5">
-                        <CardContent class="flex flex-col items-center justify-center p-3">
+                        <CardContent
+                            class="flex flex-col items-center justify-center p-3"
+                        >
                             <TrendingUp class="mb-1 h-4 w-4 text-primary" />
                             <p class="text-lg font-bold">
                                 {{ attendanceStats.percentage }}%
                             </p>
-                            <p class="text-xs text-muted-foreground">Attendance</p>
+                            <p class="text-xs text-muted-foreground">
+                                Attendance
+                            </p>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardContent class="flex flex-col items-center justify-center p-3">
+                        <CardContent
+                            class="flex flex-col items-center justify-center p-3"
+                        >
                             <Check class="mb-1 h-4 w-4 text-green-600" />
                             <p class="text-lg font-bold">
                                 {{ attendanceStats.present }}
@@ -198,7 +174,9 @@ function handleClose() {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardContent class="flex flex-col items-center justify-center p-3">
+                        <CardContent
+                            class="flex flex-col items-center justify-center p-3"
+                        >
                             <X class="mb-1 h-4 w-4 text-red-500" />
                             <p class="text-lg font-bold">
                                 {{ attendanceStats.absent }}
@@ -208,52 +186,80 @@ function handleClose() {
                     </Card>
                 </div>
 
-                <!-- Personal Information -->
                 <div class="rounded-lg border border-border p-4">
-                    <h3 class="mb-3 text-sm font-semibold">Personal Information</h3>
+                    <h3 class="mb-3 text-sm font-semibold">
+                        Personal Information
+                    </h3>
                     <div class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                         <div>
                             <p class="text-xs text-muted-foreground">Gender</p>
-                            <p class="capitalize">{{ participantData.gender }}</p>
+                            <p class="capitalize">
+                                {{ participantData.gender }}
+                            </p>
                         </div>
                         <div>
-                            <p class="text-xs text-muted-foreground">Birthday</p>
+                            <p class="text-xs text-muted-foreground">
+                                Birthday
+                            </p>
                             <p>{{ participantData.birthday || '—' }}</p>
                         </div>
                         <div>
                             <p class="text-xs text-muted-foreground">Contact</p>
-                            <p class="truncate">{{ participantData.contact_number || '—' }}</p>
+                            <p class="truncate">
+                                {{ participantData.contact_number || '—' }}
+                            </p>
                         </div>
                         <div>
                             <p class="text-xs text-muted-foreground">Address</p>
-                            <p class="truncate">{{ participantData.address || '—' }}</p>
+                            <p class="truncate">
+                                {{ participantData.address || '—' }}
+                            </p>
                         </div>
                         <div>
-                            <p class="text-xs text-muted-foreground">Cell Group</p>
-                            <p class="truncate">{{ participantData.cell_group || '—' }}</p>
+                            <p class="text-xs text-muted-foreground">
+                                Cell Group
+                            </p>
+                            <p class="truncate">
+                                {{ participantData.cell_group || '—' }}
+                            </p>
                         </div>
                         <div>
-                            <p class="text-xs text-muted-foreground">Ministry</p>
-                            <p class="truncate">{{ participantData.ministry || '—' }}</p>
+                            <p class="text-xs text-muted-foreground">
+                                Ministry
+                            </p>
+                            <p class="truncate">
+                                {{ participantData.ministry || '—' }}
+                            </p>
                         </div>
                         <div>
-                            <p class="text-xs text-muted-foreground">Date Joined</p>
+                            <p class="text-xs text-muted-foreground">
+                                Date Joined
+                            </p>
                             <p>{{ participantData.date_joined }}</p>
                         </div>
                         <div>
                             <p class="text-xs text-muted-foreground">Status</p>
                             <Badge
-                                :variant="participantData.is_active ? 'default' : 'secondary'"
+                                :variant="
+                                    participantData.is_active
+                                        ? 'default'
+                                        : 'secondary'
+                                "
                             >
-                                {{ participantData.is_active ? 'Active' : 'Inactive' }}
+                                {{
+                                    participantData.is_active
+                                        ? 'Active'
+                                        : 'Inactive'
+                                }}
                             </Badge>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendance History -->
                 <div class="rounded-lg border border-border p-4">
-                    <h3 class="mb-3 text-sm font-semibold">Attendance History</h3>
+                    <h3 class="mb-3 text-sm font-semibold">
+                        Attendance History
+                    </h3>
                     <div
                         v-if="attendanceData.length === 0"
                         class="py-4 text-center text-sm text-muted-foreground"
@@ -271,11 +277,16 @@ function handleClose() {
                                     {{ record.title }}
                                 </p>
                                 <p class="text-xs text-muted-foreground">
-                                    {{ record.activity_date }} • {{ record.activity_type }}
+                                    {{ record.activity_date }} •
+                                    {{ record.activity_type }}
                                 </p>
                             </div>
                             <Badge
-                                :variant="record.is_present ? 'default' : 'destructive'"
+                                :variant="
+                                    record.is_present
+                                        ? 'default'
+                                        : 'destructive'
+                                "
                                 class="ml-2 shrink-0"
                             >
                                 {{ record.is_present ? 'Present' : 'Absent' }}
