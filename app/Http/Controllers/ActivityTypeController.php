@@ -22,16 +22,16 @@ class ActivityTypeController extends Controller
                 ->withCount('activities')
                 ->with('departments:id,name')
                 ->latest()
-                ->get(),
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('activity-types/Create', [
+                ->get()
+                ->map(fn (ActivityType $activityType) => [
+                    'id' => $activityType->id,
+                    'name' => $activityType->name,
+                    'description' => $activityType->description,
+                    'is_active' => $activityType->is_active,
+                    'activities_count' => $activityType->activities_count,
+                    'departments' => $activityType->departments->map(fn ($d) => ['id' => $d->id, 'name' => $d->name]),
+                    'department_ids' => $activityType->departments->pluck('id'),
+                ]),
             'departments' => Department::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -49,25 +49,6 @@ class ActivityTypeController extends Controller
         $activityType->departments()->sync($departmentIds);
 
         return to_route('activity-types.index');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ActivityType $activityType): Response
-    {
-        $activityType->load('departments:id,name');
-
-        return Inertia::render('activity-types/Edit', [
-            'activityType' => [
-                'id' => $activityType->id,
-                'name' => $activityType->name,
-                'description' => $activityType->description,
-                'is_active' => $activityType->is_active,
-                'department_ids' => $activityType->departments->pluck('id'),
-            ],
-            'departments' => Department::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
-        ]);
     }
 
     /**

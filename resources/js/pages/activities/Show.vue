@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { Save } from 'lucide-vue-next';
+import { Check, Save, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { index } from '@/actions/App/Http/Controllers/ActivityController';
 import { store as storeAttendance } from '@/actions/App/Http/Controllers/AttendanceController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
     Table,
     TableBody,
@@ -158,8 +157,8 @@ const presentCount = () => attendances.value.filter((a) => a.is_present).length;
                         <TableRow>
                             <TableHead class="w-16 text-center">#</TableHead>
                             <TableHead>Participant</TableHead>
-                            <TableHead class="w-24 text-center">
-                                Present
+                            <TableHead class="w-40 text-center">
+                                Attendance
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -190,14 +189,35 @@ const presentCount = () => attendances.value.filter((a) => a.is_present).length;
                                 {{ participant.full_name }}
                             </TableCell>
                             <TableCell class="text-center">
-                                <Checkbox
+                                <Button
                                     v-if="attendances[idx]"
-                                    :model-value="attendances[idx].is_present"
-                                    @update:model-value="
-                                        attendances[idx].is_present =
-                                            $event as boolean
+                                    size="sm"
+                                    :variant="
+                                        attendances[idx].is_present
+                                            ? 'default'
+                                            : 'outline'
                                     "
-                                />
+                                    :class="
+                                        attendances[idx].is_present
+                                            ? 'bg-green-600 text-white hover:bg-green-700'
+                                            : 'text-muted-foreground'
+                                    "
+                                    @click="
+                                        attendances[idx].is_present =
+                                            !attendances[idx].is_present
+                                    "
+                                >
+                                    <Check
+                                        v-if="attendances[idx].is_present"
+                                        class="mr-1 h-3.5 w-3.5"
+                                    />
+                                    <X v-else class="mr-1 h-3.5 w-3.5" />
+                                    {{
+                                        attendances[idx].is_present
+                                            ? 'Present'
+                                            : 'Absent'
+                                    }}
+                                </Button>
                             </TableCell>
                         </TableRow>
                     </TableBody>

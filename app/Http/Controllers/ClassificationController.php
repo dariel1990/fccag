@@ -18,23 +18,11 @@ class ClassificationController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('classifications/Create');
-    }
-
     public function store(StoreClassificationRequest $request): RedirectResponse
     {
         Classification::create($request->validated());
 
         return to_route('classifications.index');
-    }
-
-    public function edit(Classification $classification): Response
-    {
-        return Inertia::render('classifications/Edit', [
-            'classification' => $classification,
-        ]);
     }
 
     public function update(UpdateClassificationRequest $request, Classification $classification): RedirectResponse

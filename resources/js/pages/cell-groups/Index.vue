@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import {
-    create,
     destroy,
-    edit,
     index,
 } from '@/actions/App/Http/Controllers/CellGroupController';
+import CellGroupFormDialog from '@/components/cell-groups/CellGroupFormDialog.vue';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -44,10 +45,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function deleteCellGroup(cellGroup: CellGroup) {
-    if (confirm(`Are you sure you want to delete "${cellGroup.name}"?`)) {
-        router.delete(destroy(cellGroup.id).url);
-    }
+const formDialogOpen = ref(false);
+const formCellGroup = ref<CellGroup | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteCellGroup = ref<CellGroup | null>(null);
+
+function openCreateDialog() {
+    formCellGroup.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(cellGroup: CellGroup) {
+    formCellGroup.value = cellGroup;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(cellGroup: CellGroup) {
+    deleteCellGroup.value = cellGroup;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteCellGroup.value) return;
+
+    router.delete(destroy(deleteCellGroup.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteCellGroup.value = null;
+        },
+    });
 }
 </script>
 
@@ -61,11 +92,9 @@ function deleteCellGroup(cellGroup: CellGroup) {
                     title="Cell Groups"
                     description="Manage church cell groups"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -124,16 +153,14 @@ function deleteCellGroup(cellGroup: CellGroup) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(cellGroup)"
                                     >
-                                        <Link :href="edit(cellGroup.id).url">
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="deleteCellGroup(cellGroup)"
+                                        @click="openDeleteDialog(cellGroup)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -145,6 +172,18 @@ function deleteCellGroup(cellGroup: CellGroup) {
                     </TableBody>
                 </Table>
             </div>
+
+            <CellGroupFormDialog
+                v-model:open="formDialogOpen"
+                :cell-group="formCellGroup"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteCellGroup?.name"
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

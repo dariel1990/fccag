@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import {
-    create,
     destroy,
-    edit,
     index,
 } from '@/actions/App/Http/Controllers/MinistryController';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
+import MinistryFormDialog from '@/components/ministries/MinistryFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,10 +44,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function deleteMinistry(ministry: Ministry) {
-    if (confirm(`Are you sure you want to delete "${ministry.name}"?`)) {
-        router.delete(destroy(ministry.id).url);
-    }
+const formDialogOpen = ref(false);
+const formMinistry = ref<Ministry | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteMinistry = ref<Ministry | null>(null);
+
+function openCreateDialog() {
+    formMinistry.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(ministry: Ministry) {
+    formMinistry.value = ministry;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(ministry: Ministry) {
+    deleteMinistry.value = ministry;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteMinistry.value) return;
+
+    router.delete(destroy(deleteMinistry.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteMinistry.value = null;
+        },
+    });
 }
 </script>
 
@@ -60,11 +91,9 @@ function deleteMinistry(ministry: Ministry) {
                     title="Ministries"
                     description="Manage church ministries"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -123,16 +152,14 @@ function deleteMinistry(ministry: Ministry) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(ministry)"
                                     >
-                                        <Link :href="edit(ministry.id).url">
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="deleteMinistry(ministry)"
+                                        @click="openDeleteDialog(ministry)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -144,6 +171,18 @@ function deleteMinistry(ministry: Ministry) {
                     </TableBody>
                 </Table>
             </div>
+
+            <MinistryFormDialog
+                v-model:open="formDialogOpen"
+                :ministry="formMinistry"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteMinistry?.name"
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

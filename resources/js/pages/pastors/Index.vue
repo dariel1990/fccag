@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import {
-    create,
     destroy,
-    edit,
     index,
 } from '@/actions/App/Http/Controllers/PastorController';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
+import PastorFormDialog from '@/components/pastors/PastorFormDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +29,10 @@ type Pastor = {
     last_name: string;
     title: string | null;
     role: string | null;
+    bio: string | null;
+    contact_number: string | null;
+    email: string | null;
+    date_started: string | null;
     is_active: boolean;
     photo_url: string | null;
 };
@@ -52,10 +57,40 @@ function fullName(pastor: Pastor): string {
     return parts.join(' ');
 }
 
-function deletePastor(pastor: Pastor) {
-    if (confirm(`Are you sure you want to delete "${fullName(pastor)}"?`)) {
-        router.delete(destroy(pastor.id).url);
-    }
+const formDialogOpen = ref(false);
+const formPastor = ref<Pastor | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deletePastor = ref<Pastor | null>(null);
+
+function openCreateDialog() {
+    formPastor.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(pastor: Pastor) {
+    formPastor.value = pastor;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(pastor: Pastor) {
+    deletePastor.value = pastor;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deletePastor.value) return;
+
+    router.delete(destroy(deletePastor.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deletePastor.value = null;
+        },
+    });
 }
 </script>
 
@@ -69,11 +104,9 @@ function deletePastor(pastor: Pastor) {
                     title="Pastors"
                     description="Manage church pastors and leaders"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -139,16 +172,14 @@ function deletePastor(pastor: Pastor) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(pastor)"
                                     >
-                                        <Link :href="edit(pastor.id).url">
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="deletePastor(pastor)"
+                                        @click="openDeleteDialog(pastor)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -160,6 +191,20 @@ function deletePastor(pastor: Pastor) {
                     </TableBody>
                 </Table>
             </div>
+
+            <PastorFormDialog
+                v-model:open="formDialogOpen"
+                :pastor="formPastor"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="
+                    deletePastor ? fullName(deletePastor) : undefined
+                "
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

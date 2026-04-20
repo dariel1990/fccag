@@ -18,23 +18,11 @@ class MinistryController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('ministries/Create');
-    }
-
     public function store(StoreMinistryRequest $request): RedirectResponse
     {
         Ministry::create($request->validated());
 
         return to_route('ministries.index');
-    }
-
-    public function edit(Ministry $ministry): Response
-    {
-        return Inertia::render('ministries/Edit', [
-            'ministry' => $ministry,
-        ]);
     }
 
     public function update(UpdateMinistryRequest $request, Ministry $ministry): RedirectResponse

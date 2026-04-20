@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import {
-    create,
     destroy,
-    edit,
     index,
     show,
 } from '@/actions/App/Http/Controllers/DepartmentController';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
+import DepartmentFormDialog from '@/components/departments/DepartmentFormDialog.vue';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,10 +47,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function deleteDepartment(department: Department) {
-    if (confirm(`Are you sure you want to delete "${department.name}"?`)) {
-        router.delete(destroy(department.id).url);
-    }
+const formDialogOpen = ref(false);
+const formDepartment = ref<Department | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteDepartment = ref<Department | null>(null);
+
+function openCreateDialog() {
+    formDepartment.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(department: Department) {
+    formDepartment.value = department;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(department: Department) {
+    deleteDepartment.value = department;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteDepartment.value) return;
+
+    router.delete(destroy(deleteDepartment.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteDepartment.value = null;
+        },
+    });
 }
 </script>
 
@@ -63,11 +94,9 @@ function deleteDepartment(department: Department) {
                     title="Departments"
                     description="Manage church departments"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -144,18 +173,14 @@ function deleteDepartment(department: Department) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(department)"
                                     >
-                                        <Link
-                                            :href="edit(department.id).url"
-                                        >
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="deleteDepartment(department)"
+                                        @click="openDeleteDialog(department)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -167,6 +192,18 @@ function deleteDepartment(department: Department) {
                     </TableBody>
                 </Table>
             </div>
+
+            <DepartmentFormDialog
+                v-model:open="formDialogOpen"
+                :department="formDepartment"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteDepartment?.name"
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

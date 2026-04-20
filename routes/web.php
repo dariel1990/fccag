@@ -41,40 +41,40 @@ Route::middleware(['auth:sanctum,web', 'verified'])->group(function (): void {
     });
 
     Route::middleware('permission:activity_types')->group(function (): void {
-        Route::resource('activity-types', ActivityTypeController::class)->except(['show']);
+        Route::resource('activity-types', ActivityTypeController::class)->except(['show', 'create', 'edit']);
     });
 
     Route::middleware('permission:participants')->group(function (): void {
-        Route::resource('participants', ParticipantController::class);
+        Route::resource('participants', ParticipantController::class)->except(['create', 'edit']);
     });
 
     Route::middleware('permission:activities')->group(function (): void {
-        Route::resource('activities', ActivityController::class);
+        Route::resource('activities', ActivityController::class)->except(['create', 'edit']);
         Route::post('activities/{activity}/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
         Route::get('reports/quarterly', [ReportController::class, 'quarterlyReport'])->name('reports.quarterly');
     });
 
     Route::middleware('permission:cell_groups')->group(function (): void {
-        Route::resource('cell-groups', CellGroupController::class)->except(['show']);
+        Route::resource('cell-groups', CellGroupController::class)->except(['show', 'create', 'edit']);
     });
 
     Route::middleware('permission:classifications')->group(function (): void {
-        Route::resource('classifications', ClassificationController::class)->except(['show']);
+        Route::resource('classifications', ClassificationController::class)->except(['show', 'create', 'edit']);
     });
 
     Route::middleware('permission:ministries')->group(function (): void {
-        Route::resource('ministries', MinistryController::class)->except(['show']);
+        Route::resource('ministries', MinistryController::class)->except(['show', 'create', 'edit']);
     });
 
     Route::middleware('permission:departments')->group(function (): void {
-        Route::resource('departments', DepartmentController::class);
+        Route::resource('departments', DepartmentController::class)->except(['create', 'edit']);
         Route::post('departments/{department}/officers', [DepartmentOfficerController::class, 'store'])->name('department-officers.store');
         Route::put('departments/{department}/officers/{officer}', [DepartmentOfficerController::class, 'update'])->name('department-officers.update');
         Route::delete('departments/{department}/officers/{officer}', [DepartmentOfficerController::class, 'destroy'])->name('department-officers.destroy');
     });
 
     Route::middleware('permission:pastors')->group(function (): void {
-        Route::resource('pastors', PastorController::class)->except(['show']);
+        Route::resource('pastors', PastorController::class)->except(['show', 'create', 'edit']);
     });
 
     // SI (Survival Intervention) module

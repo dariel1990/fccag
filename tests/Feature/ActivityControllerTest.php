@@ -38,17 +38,6 @@ class ActivityControllerTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('activities/Index')
                 ->has('activities', 3)
-            );
-    }
-
-    public function test_create_page_displays_activity_types(): void
-    {
-        $response = $this->actingAs($this->user)
-            ->get(route('activities.create'));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('activities/Create')
                 ->has('activityTypes')
             );
     }
@@ -108,21 +97,6 @@ class ActivityControllerTest extends TestCase
                 ->component('activities/Show')
                 ->where('activity.id', $activity->id)
                 ->has('participants')
-            );
-    }
-
-    public function test_edit_page_is_displayed(): void
-    {
-        $activity = Activity::factory()->create(['activity_type_id' => $this->activityType->id]);
-
-        $response = $this->actingAs($this->user)
-            ->get(route('activities.edit', $activity));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('activities/Edit')
-                ->where('activity.id', $activity->id)
-                ->has('activityTypes')
             );
     }
 

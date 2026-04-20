@@ -53,19 +53,6 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('participants/Create', [
-            'cellGroups' => CellGroup::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'classifications' => Classification::orderBy('name')->get(['id', 'name', 'code']),
-            'ministries' => Ministry::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'departments' => Department::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-        ]);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreParticipantRequest $request): RedirectResponse
@@ -134,36 +121,6 @@ class ParticipantController extends Controller
         return Inertia::render('participants/Show', [
             'participant' => $participantData,
             'attendanceHistory' => $attendanceHistory,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Participant $participant): Response
-    {
-        $participant->load(['ministries']);
-
-        return Inertia::render('participants/Edit', [
-            'participant' => [
-                'id' => $participant->id,
-                'first_name' => $participant->first_name,
-                'last_name' => $participant->last_name,
-                'gender' => $participant->gender->value,
-                'birthday' => $participant->birthday?->format('Y-m-d'),
-                'contact_number' => $participant->contact_number,
-                'address' => $participant->address,
-                'cell_group_id' => $participant->cell_group_id,
-                'classification_id' => $participant->classification_id,
-                'department_id' => $participant->department_id,
-                'ministry_ids' => $participant->ministries->pluck('id'),
-                'date_joined' => $participant->date_joined->format('Y-m-d'),
-                'is_active' => $participant->is_active,
-            ],
-            'cellGroups' => CellGroup::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'classifications' => Classification::orderBy('name')->get(['id', 'name', 'code']),
-            'ministries' => Ministry::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'departments' => Department::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

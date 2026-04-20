@@ -20,11 +20,6 @@ class DepartmentController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('departments/Create');
-    }
-
     public function store(StoreDepartmentRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -55,13 +50,6 @@ class DepartmentController extends Controller
                 ->orderBy('last_name')
                 ->orderBy('first_name')
                 ->get(['id', 'first_name', 'last_name']),
-        ]);
-    }
-
-    public function edit(Department $department): Response
-    {
-        return Inertia::render('departments/Edit', [
-            'department' => $department,
         ]);
     }
 

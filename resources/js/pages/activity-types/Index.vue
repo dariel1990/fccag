@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import {
-    index,
-    create,
-    edit,
     destroy,
+    index,
 } from '@/actions/App/Http/Controllers/ActivityTypeController';
+import ActivityTypeFormDialog from '@/components/activity-types/ActivityTypeFormDialog.vue';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,17 +23,21 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
+type Department = { id: number; name: string };
+
 type ActivityType = {
     id: number;
     name: string;
     description: string | null;
     is_active: boolean;
     activities_count: number;
-    departments: { id: number; name: string }[];
+    departments: Department[];
+    department_ids: number[];
 };
 
 type Props = {
     activityTypes?: ActivityType[];
+    departments: Department[];
 };
 
 const props = defineProps<Props>();
@@ -47,14 +51,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function deleteActivityType(activityType: ActivityType) {
-    if (
-        confirm(
-            `Are you sure you want to delete "${activityType.name}"? This will also delete all associated activities and attendance records.`,
-        )
-    ) {
-        router.delete(destroy(activityType.id).url);
-    }
+const formDialogOpen = ref(false);
+const formActivityType = ref<ActivityType | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteTarget = ref<ActivityType | null>(null);
+
+function openCreateDialog() {
+    formActivityType.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(activityType: ActivityType) {
+    formActivityType.value = activityType;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(activityType: ActivityType) {
+    deleteTarget.value = activityType;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteTarget.value) return;
+
+    router.delete(destroy(deleteTarget.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteTarget.value = null;
+        },
+    });
 }
 </script>
 
@@ -68,11 +98,9 @@ function deleteActivityType(activityType: ActivityType) {
                     title="Activity Types"
                     description="Manage the types of church activities"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -154,18 +182,14 @@ function deleteActivityType(activityType: ActivityType) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(activityType)"
                                     >
-                                        <Link :href="edit(activityType.id).url">
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="
-                                            deleteActivityType(activityType)
-                                        "
+                                        @click="openDeleteDialog(activityType)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -177,6 +201,24 @@ function deleteActivityType(activityType: ActivityType) {
                     </TableBody>
                 </Table>
             </div>
+
+            <ActivityTypeFormDialog
+                v-model:open="formDialogOpen"
+                :activity-type="formActivityType"
+                :departments="props.departments"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteTarget?.name"
+                :description="
+                    deleteTarget
+                        ? `Are you sure you want to delete &quot;${deleteTarget.name}&quot;? This will also delete all associated activities and attendance records.`
+                        : undefined
+                "
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

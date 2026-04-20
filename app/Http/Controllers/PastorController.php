@@ -15,13 +15,20 @@ class PastorController extends Controller
     public function index(): Response
     {
         return Inertia::render('pastors/Index', [
-            'pastors' => Pastor::query()->latest()->get(),
+            'pastors' => Pastor::query()->latest()->get()->map(fn (Pastor $pastor) => [
+                'id' => $pastor->id,
+                'first_name' => $pastor->first_name,
+                'last_name' => $pastor->last_name,
+                'title' => $pastor->title,
+                'role' => $pastor->role,
+                'bio' => $pastor->bio,
+                'contact_number' => $pastor->contact_number,
+                'email' => $pastor->email,
+                'date_started' => $pastor->date_started?->format('Y-m-d'),
+                'is_active' => $pastor->is_active,
+                'photo_url' => $pastor->photo_url,
+            ]),
         ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('pastors/Create');
     }
 
     public function store(StorePastorRequest $request): RedirectResponse
@@ -35,13 +42,6 @@ class PastorController extends Controller
         Pastor::create($data);
 
         return to_route('pastors.index');
-    }
-
-    public function edit(Pastor $pastor): Response
-    {
-        return Inertia::render('pastors/Edit', [
-            'pastor' => $pastor,
-        ]);
     }
 
     public function update(UpdatePastorRequest $request, Pastor $pastor): RedirectResponse

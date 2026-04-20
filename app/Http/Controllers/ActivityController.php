@@ -35,27 +35,20 @@ class ActivityController extends Controller
                 ->get()
                 ->map(fn (Activity $activity) => [
                     'id' => $activity->id,
+                    'activity_type_id' => $activity->activity_type_id,
                     'title' => $activity->title,
+                    'description' => $activity->description,
                     'activity_type' => $activity->activityType->name,
                     'activity_date' => $activity->activity_date->format('Y-m-d'),
                     'attendances_count' => $activity->attendances_count,
                     'present_count' => $activity->present_count,
                 ]),
-            'year' => $year,
-            'month' => $month,
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('activities/Create', [
             'activityTypes' => ActivityType::query()
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'year' => $year,
+            'month' => $month,
         ]);
     }
 
@@ -64,9 +57,9 @@ class ActivityController extends Controller
      */
     public function store(StoreActivityRequest $request): RedirectResponse
     {
-        $activity = Activity::create($request->validated());
+        Activity::create($request->validated());
 
-        return to_route('activities.show', $activity);
+        return to_route('activities.index');
     }
 
     /**
@@ -112,26 +105,6 @@ class ActivityController extends Controller
                     ? $attendances->get($participant->id)->remarks
                     : null,
             ]),
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Activity $activity): Response
-    {
-        return Inertia::render('activities/Edit', [
-            'activity' => [
-                'id' => $activity->id,
-                'activity_type_id' => $activity->activity_type_id,
-                'title' => $activity->title,
-                'description' => $activity->description,
-                'activity_date' => $activity->activity_date->format('Y-m-d'),
-            ],
-            'activityTypes' => ActivityType::query()
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get(['id', 'name']),
         ]);
     }
 

@@ -10,12 +10,12 @@ import {
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import {
-    index,
-    create,
-    show,
-    edit,
     destroy,
+    index,
+    show,
 } from '@/actions/App/Http/Controllers/ActivityController';
+import ActivityFormDialog from '@/components/activities/ActivityFormDialog.vue';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,15 +31,20 @@ import { type BreadcrumbItem } from '@/types';
 
 type Activity = {
     id: number;
+    activity_type_id: number;
     title: string;
+    description: string | null;
     activity_type: string;
     activity_date: string;
     attendances_count: number;
     present_count: number;
 };
 
+type ActivityType = { id: number; name: string };
+
 type Props = {
     activities?: Activity[];
+    activityTypes: ActivityType[];
     year?: number;
     month?: number;
 };
@@ -157,14 +162,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Activities', href: index().url },
 ];
 
-function deleteActivity(activity: Activity) {
-    if (
-        confirm(
-            `Are you sure you want to delete "${activity.title}"? This will also delete all attendance records for this activity.`,
-        )
-    ) {
-        router.delete(destroy(activity.id).url);
-    }
+const formDialogOpen = ref(false);
+const formActivity = ref<Activity | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteActivity = ref<Activity | null>(null);
+
+function openCreateDialog() {
+    formActivity.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(activity: Activity) {
+    formActivity.value = activity;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(activity: Activity) {
+    deleteActivity.value = activity;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteActivity.value) return;
+
+    router.delete(destroy(deleteActivity.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteActivity.value = null;
+        },
+    });
 }
 </script>
 
@@ -178,11 +209,9 @@ function deleteActivity(activity: Activity) {
                     title="Activities"
                     description="Manage church activity sessions"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add Activity
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add Activity
                 </Button>
             </div>
 
@@ -278,16 +307,14 @@ function deleteActivity(activity: Activity) {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            as-child
+                                            @click="openEditDialog(activity)"
                                         >
-                                            <Link :href="edit(activity.id).url">
-                                                <Pencil class="h-4 w-4" />
-                                            </Link>
+                                            <Pencil class="h-4 w-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            @click="deleteActivity(activity)"
+                                            @click="openDeleteDialog(activity)"
                                         >
                                             <Trash2
                                                 class="h-4 w-4 text-destructive"
@@ -300,6 +327,24 @@ function deleteActivity(activity: Activity) {
                     </TableBody>
                 </Table>
             </div>
+
+            <ActivityFormDialog
+                v-model:open="formDialogOpen"
+                :activity="formActivity"
+                :activity-types="props.activityTypes"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteActivity?.title"
+                :description="
+                    deleteActivity
+                        ? `Are you sure you want to delete &quot;${deleteActivity.title}&quot;? This will also delete all attendance records for this activity.`
+                        : undefined
+                "
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

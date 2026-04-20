@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import {
-    create,
     destroy,
-    edit,
     index,
 } from '@/actions/App/Http/Controllers/ClassificationController';
+import ClassificationFormDialog from '@/components/classifications/ClassificationFormDialog.vue';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,14 +43,40 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-function deleteClassification(classification: Classification) {
-    if (
-        confirm(
-            `Are you sure you want to delete "${classification.name}"?`,
-        )
-    ) {
-        router.delete(destroy(classification.id).url);
-    }
+const formDialogOpen = ref(false);
+const formClassification = ref<Classification | null>(null);
+
+const deleteDialogOpen = ref(false);
+const deleteClassification = ref<Classification | null>(null);
+
+function openCreateDialog() {
+    formClassification.value = null;
+    formDialogOpen.value = true;
+}
+
+function openEditDialog(classification: Classification) {
+    formClassification.value = classification;
+    formDialogOpen.value = true;
+}
+
+function openDeleteDialog(classification: Classification) {
+    deleteClassification.value = classification;
+    deleteDialogOpen.value = true;
+}
+
+function handleFormSaved() {
+    router.reload();
+}
+
+function handleDeleteConfirm() {
+    if (!deleteClassification.value) return;
+
+    router.delete(destroy(deleteClassification.value.id).url, {
+        onSuccess: () => {
+            deleteDialogOpen.value = false;
+            deleteClassification.value = null;
+        },
+    });
 }
 </script>
 
@@ -63,11 +90,9 @@ function deleteClassification(classification: Classification) {
                     title="Classifications"
                     description="Manage member classifications"
                 />
-                <Button as-child>
-                    <Link :href="create().url">
-                        <Plus class="mr-2 h-4 w-4" />
-                        Add
-                    </Link>
+                <Button @click="openCreateDialog">
+                    <Plus class="mr-2 h-4 w-4" />
+                    Add
                 </Button>
             </div>
 
@@ -116,22 +141,14 @@ function deleteClassification(classification: Classification) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        as-child
+                                        @click="openEditDialog(classification)"
                                     >
-                                        <Link
-                                            :href="
-                                                edit(classification.id).url
-                                            "
-                                        >
-                                            <Pencil class="h-4 w-4" />
-                                        </Link>
+                                        <Pencil class="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="
-                                            deleteClassification(classification)
-                                        "
+                                        @click="openDeleteDialog(classification)"
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"
@@ -143,6 +160,18 @@ function deleteClassification(classification: Classification) {
                     </TableBody>
                 </Table>
             </div>
+
+            <ClassificationFormDialog
+                v-model:open="formDialogOpen"
+                :classification="formClassification"
+                @saved="handleFormSaved"
+            />
+
+            <DeleteConfirmDialog
+                v-model:open="deleteDialogOpen"
+                :item-name="deleteClassification?.name"
+                @confirm="handleDeleteConfirm"
+            />
         </div>
     </AppLayout>
 </template>

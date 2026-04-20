@@ -35,17 +35,6 @@ class ParticipantControllerTest extends TestCase
             );
     }
 
-    public function test_create_page_is_displayed(): void
-    {
-        $response = $this->actingAs($this->user)
-            ->get(route('participants.create'));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('participants/Create')
-            );
-    }
-
     public function test_participant_can_be_created(): void
     {
         $response = $this->actingAs($this->user)
@@ -135,20 +124,6 @@ class ParticipantControllerTest extends TestCase
                 'attendance_history',
             ])
             ->assertJsonPath('data.id', $participant->id);
-    }
-
-    public function test_edit_page_is_displayed(): void
-    {
-        $participant = Participant::factory()->create();
-
-        $response = $this->actingAs($this->user)
-            ->get(route('participants.edit', $participant));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('participants/Edit')
-                ->where('participant.id', $participant->id)
-            );
     }
 
     public function test_participant_can_be_updated(): void

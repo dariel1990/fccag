@@ -34,17 +34,6 @@ class ActivityTypeControllerTest extends TestCase
             );
     }
 
-    public function test_create_page_is_displayed(): void
-    {
-        $response = $this->actingAs($this->user)
-            ->get(route('activity-types.create'));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('activity-types/Create')
-            );
-    }
-
     public function test_activity_type_can_be_created(): void
     {
         $response = $this->actingAs($this->user)
@@ -83,20 +72,6 @@ class ActivityTypeControllerTest extends TestCase
             ]);
 
         $response->assertSessionHasErrors('name');
-    }
-
-    public function test_edit_page_is_displayed(): void
-    {
-        $activityType = ActivityType::factory()->create();
-
-        $response = $this->actingAs($this->user)
-            ->get(route('activity-types.edit', $activityType));
-
-        $response->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('activity-types/Edit')
-                ->where('activityType.id', $activityType->id)
-            );
     }
 
     public function test_activity_type_can_be_updated(): void

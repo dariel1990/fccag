@@ -18,23 +18,11 @@ class CellGroupController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('cell-groups/Create');
-    }
-
     public function store(StoreCellGroupRequest $request): RedirectResponse
     {
         CellGroup::create($request->validated());
 
         return to_route('cell-groups.index');
-    }
-
-    public function edit(CellGroup $cellGroup): Response
-    {
-        return Inertia::render('cell-groups/Edit', [
-            'cellGroup' => $cellGroup,
-        ]);
     }
 
     public function update(UpdateCellGroupRequest $request, CellGroup $cellGroup): RedirectResponse
