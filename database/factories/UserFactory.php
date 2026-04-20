@@ -56,4 +56,19 @@ class UserFactory extends Factory
             'two_factor_confirmed_at' => now(),
         ]);
     }
+
+    public function superAdmin(): static
+    {
+        return $this->state(['is_superadmin' => true]);
+    }
+
+    public function withFullAccess(): static
+    {
+        return $this->state(['permissions' => ['*' => true]]);
+    }
+
+    public function withPermissions(array $permissions): static
+    {
+        return $this->state(['permissions' => $permissions]);
+    }
 }

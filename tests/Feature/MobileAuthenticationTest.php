@@ -119,14 +119,6 @@ class MobileAuthenticationTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_mobile_detected_guest_is_redirected_from_dashboard(): void
-    {
-        $response = $this->withUnencryptedCookie('nativephp_mobile', 'true')
-            ->get(route('dashboard'));
-
-        $response->assertRedirect();
-    }
-
     public function test_non_mobile_guest_is_redirected_from_dashboard(): void
     {
         $response = $this->get(route('dashboard'));

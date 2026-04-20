@@ -23,7 +23,7 @@ class AttendanceControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->withFullAccess()->create();
         $activityType = ActivityType::factory()->create();
         $this->activity = Activity::factory()->create(['activity_type_id' => $activityType->id]);
         $this->participant = Participant::factory()->create(['is_active' => true]);

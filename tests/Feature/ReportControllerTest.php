@@ -21,7 +21,7 @@ class ReportControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->withFullAccess()->create();
         $this->activityType = ActivityType::factory()->create();
     }
 

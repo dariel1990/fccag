@@ -11,6 +11,8 @@ export type User = {
 
 export type Auth = {
     user: User;
+    isSuperAdmin: boolean;
+    permissions: Record<string, string[] | true>;
 };
 
 export type TwoFactorConfigContent = {

@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_superadmin',
+        'permissions',
     ];
 
     /**
@@ -48,6 +50,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'is_superadmin' => 'boolean',
+            'permissions' => 'array',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_superadmin === true;
+    }
+
+    public function getPermissions(): \App\ValueObjects\UserPermissions
+    {
+        return \App\ValueObjects\UserPermissions::fromArray($this->permissions);
+    }
+
+    public function hasPermission(\App\Enums\Module $module, \App\Enums\PermissionAction $action): bool
+    {
+        return $this->getPermissions()->can($module, $action);
     }
 }
