@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
 import { Save, Pencil } from 'lucide-vue-next';
 import { ref } from 'vue';

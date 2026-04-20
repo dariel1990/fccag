@@ -126,11 +126,11 @@ class MobileAuthenticationTest extends TestCase
         $response->assertRedirect();
     }
 
-    public function test_home_does_not_redirect_desktop_guest(): void
+    public function test_home_redirects_desktop_guest_to_login(): void
     {
         $response = $this->get('/');
 
-        $response->assertOk();
+        $response->assertRedirect(route('login'));
     }
 
     public function test_api_dashboard_returns_stats_for_authenticated_user(): void

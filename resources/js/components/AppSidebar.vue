@@ -16,6 +16,7 @@ import {
     ClipboardList,
     ListChecks,
 } from 'lucide-vue-next';
+import { computed } from 'vue';
 import { index as activitiesIndex } from '@/actions/App/Http/Controllers/ActivityController';
 import { index as activityTypesIndex } from '@/actions/App/Http/Controllers/ActivityTypeController';
 import { index as cellGroupsIndex } from '@/actions/App/Http/Controllers/CellGroupController';
@@ -26,11 +27,11 @@ import { index as participantsIndex } from '@/actions/App/Http/Controllers/Parti
 import { index as pastorsIndex } from '@/actions/App/Http/Controllers/PastorController';
 import { index as blogIndex } from '@/actions/App/Http/Controllers/PostController';
 import { quarterlyReport } from '@/actions/App/Http/Controllers/ReportController';
-import { index as usersIndex } from '@/actions/App/Http/Controllers/UserController';
-import { index as siMembersIndex } from '@/actions/App/Http/Controllers/Si/SiMemberController';
-import { index as siActivitiesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityController';
 import { index as siActivityCategoriesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityCategoryController';
+import { index as siActivitiesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityController';
+import { index as siMembersIndex } from '@/actions/App/Http/Controllers/Si/SiMemberController';
 import { index as siReportsIndex } from '@/actions/App/Http/Controllers/Si/SiReportController';
+import { index as usersIndex } from '@/actions/App/Http/Controllers/UserController';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -43,10 +44,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { usePermissions } from '@/composables/usePermissions';
 import { dashboard } from '@/routes';
 import { type NavGroup } from '@/types';
-import { computed } from 'vue';
-import { usePermissions } from '@/composables/usePermissions';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage();

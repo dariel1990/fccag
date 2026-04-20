@@ -106,15 +106,11 @@ watch(
 );
 
 function buildPayload() {
-    if (useExistingCaregiver.value) {
-        const { caregiver: _c, ...rest } = form.value;
+    const { caregiver, caregiver_id, ...rest } = form.value;
 
-        return rest;
-    }
-
-    const { caregiver_id: _id, ...rest } = form.value;
-
-    return rest;
+    return useExistingCaregiver.value
+        ? { ...rest, caregiver_id }
+        : { ...rest, caregiver };
 }
 
 function submit() {
