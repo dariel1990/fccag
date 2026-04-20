@@ -110,9 +110,15 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-lg">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Activity' : 'Add Activity' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Activity' : 'Add Activity'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update activity details' : 'Add a new activity session' }}
+                    {{
+                        isEdit
+                            ? 'Update activity details'
+                            : 'Add a new activity session'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
@@ -123,7 +129,7 @@ function handleClose() {
                         id="act_type"
                         v-model="form.activity_type_id"
                         required
-                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
                     >
                         <option value="" disabled>Select activity type</option>
                         <option
@@ -139,24 +145,40 @@ function handleClose() {
 
                 <div class="space-y-1.5">
                     <Label for="act_title">Title</Label>
-                    <Input id="act_title" v-model="form.title" required placeholder="e.g. Sunday Service - Week 1" />
+                    <Input
+                        id="act_title"
+                        v-model="form.title"
+                        required
+                        placeholder="e.g. Sunday Service - Week 1"
+                    />
                     <InputError :message="errors.title" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="act_description">Description</Label>
-                    <Input id="act_description" v-model="form.description" placeholder="Optional description" />
+                    <Input
+                        id="act_description"
+                        v-model="form.description"
+                        placeholder="Optional description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="act_date">Date</Label>
-                    <Input id="act_date" v-model="form.activity_date" type="date" required />
+                    <Input
+                        id="act_date"
+                        v-model="form.activity_date"
+                        type="date"
+                        required
+                    />
                     <InputError :message="errors.activity_date" />
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

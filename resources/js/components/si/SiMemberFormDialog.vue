@@ -49,11 +49,21 @@ const isProcessing = ref(false);
 const errors = ref<Record<string, string>>({});
 const useExistingCaregiver = ref(true);
 
-const caregiverOptions = ref(props.caregivers.map((c) => ({ value: c.id, label: `${c.first_name} ${c.last_name}` })));
+const caregiverOptions = ref(
+    props.caregivers.map((c) => ({
+        value: c.id,
+        label: `${c.first_name} ${c.last_name}`,
+    })),
+);
 
 const form = ref({
     caregiver_id: null as number | null,
-    caregiver: { first_name: '', last_name: '', contact_number: '', address: '' },
+    caregiver: {
+        first_name: '',
+        last_name: '',
+        contact_number: '',
+        address: '',
+    },
     name: '',
     sex: '',
     ph_id: '',
@@ -78,7 +88,12 @@ watch(
                 isEdit.value = true;
                 form.value = {
                     caregiver_id: props.member.caregiver_id,
-                    caregiver: { first_name: '', last_name: '', contact_number: '', address: '' },
+                    caregiver: {
+                        first_name: '',
+                        last_name: '',
+                        contact_number: '',
+                        address: '',
+                    },
                     name: props.member.name,
                     sex: props.member.sex,
                     ph_id: props.member.ph_id ?? '',
@@ -91,7 +106,12 @@ watch(
                 isEdit.value = false;
                 form.value = {
                     caregiver_id: null,
-                    caregiver: { first_name: '', last_name: '', contact_number: '', address: '' },
+                    caregiver: {
+                        first_name: '',
+                        last_name: '',
+                        contact_number: '',
+                        address: '',
+                    },
                     name: '',
                     sex: '',
                     ph_id: '',
@@ -147,9 +167,15 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? `Edit: ${member?.name}` : 'Enroll SI Member' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? `Edit: ${member?.name}` : 'Enroll SI Member'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update SI member information' : 'Register a new child in the SI program' }}
+                    {{
+                        isEdit
+                            ? 'Update SI member information'
+                            : 'Register a new child in the SI program'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
@@ -162,7 +188,11 @@ function handleClose() {
                             <button
                                 type="button"
                                 class="underline"
-                                :class="useExistingCaregiver ? 'font-semibold' : 'text-muted-foreground'"
+                                :class="
+                                    useExistingCaregiver
+                                        ? 'font-semibold'
+                                        : 'text-muted-foreground'
+                                "
                                 @click="useExistingCaregiver = true"
                             >
                                 Select existing
@@ -170,7 +200,11 @@ function handleClose() {
                             <button
                                 type="button"
                                 class="underline"
-                                :class="!useExistingCaregiver ? 'font-semibold' : 'text-muted-foreground'"
+                                :class="
+                                    !useExistingCaregiver
+                                        ? 'font-semibold'
+                                        : 'text-muted-foreground'
+                                "
                                 @click="useExistingCaregiver = false"
                             >
                                 Add new
@@ -178,7 +212,10 @@ function handleClose() {
                         </div>
                     </div>
 
-                    <div v-if="isEdit || useExistingCaregiver" class="space-y-1.5">
+                    <div
+                        v-if="isEdit || useExistingCaregiver"
+                        class="space-y-1.5"
+                    >
                         <Multiselect
                             v-model="form.caregiver_id"
                             :options="caregiverOptions"
@@ -193,21 +230,37 @@ function handleClose() {
                     <div v-else class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <Label>First Name</Label>
-                            <Input v-model="form.caregiver.first_name" placeholder="First name" />
-                            <InputError :message="errors['caregiver.first_name']" />
+                            <Input
+                                v-model="form.caregiver.first_name"
+                                placeholder="First name"
+                            />
+                            <InputError
+                                :message="errors['caregiver.first_name']"
+                            />
                         </div>
                         <div class="space-y-1.5">
                             <Label>Last Name</Label>
-                            <Input v-model="form.caregiver.last_name" placeholder="Last name" />
-                            <InputError :message="errors['caregiver.last_name']" />
+                            <Input
+                                v-model="form.caregiver.last_name"
+                                placeholder="Last name"
+                            />
+                            <InputError
+                                :message="errors['caregiver.last_name']"
+                            />
                         </div>
                         <div class="space-y-1.5">
                             <Label>Contact Number</Label>
-                            <Input v-model="form.caregiver.contact_number" placeholder="Contact number" />
+                            <Input
+                                v-model="form.caregiver.contact_number"
+                                placeholder="Contact number"
+                            />
                         </div>
                         <div class="space-y-1.5">
                             <Label>Address</Label>
-                            <Input v-model="form.caregiver.address" placeholder="Address" />
+                            <Input
+                                v-model="form.caregiver.address"
+                                placeholder="Address"
+                            />
                         </div>
                     </div>
                 </div>
@@ -216,7 +269,11 @@ function handleClose() {
 
                 <div class="space-y-1.5">
                     <Label>Child Name</Label>
-                    <Input v-model="form.name" required placeholder="Full name of the child" />
+                    <Input
+                        v-model="form.name"
+                        required
+                        placeholder="Full name of the child"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
@@ -225,7 +282,11 @@ function handleClose() {
                         <Label>Sex</Label>
                         <Multiselect
                             v-model="form.sex"
-                            :options="[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'unborn', label: 'Unborn' }]"
+                            :options="[
+                                { value: 'male', label: 'Male' },
+                                { value: 'female', label: 'Female' },
+                                { value: 'unborn', label: 'Unborn' },
+                            ]"
                             label="label"
                             value-prop="value"
                             placeholder="Select sex"
@@ -235,14 +296,20 @@ function handleClose() {
                     </div>
                     <div class="space-y-1.5">
                         <Label>PH ID</Label>
-                        <Input v-model="form.ph_id" placeholder="Program ID (optional)" />
+                        <Input
+                            v-model="form.ph_id"
+                            placeholder="Program ID (optional)"
+                        />
                         <InputError :message="errors.ph_id" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
                     <Label>Address</Label>
-                    <Input v-model="form.address" placeholder="Child's address" />
+                    <Input
+                        v-model="form.address"
+                        placeholder="Child's address"
+                    />
                     <InputError :message="errors.address" />
                 </div>
 
@@ -251,7 +318,10 @@ function handleClose() {
                         <Label>Status</Label>
                         <Multiselect
                             v-model="form.status"
-                            :options="[{ value: 'active', label: 'Active' }, { value: 'exit', label: 'Exit' }]"
+                            :options="[
+                                { value: 'active', label: 'Active' },
+                                { value: 'exit', label: 'Exit' },
+                            ]"
                             label="label"
                             value-prop="value"
                             placeholder="Select status"
@@ -261,7 +331,11 @@ function handleClose() {
                     </div>
                     <div class="space-y-1.5">
                         <Label>Enrolled Date</Label>
-                        <Input v-model="form.enrolled_at" type="date" required />
+                        <Input
+                            v-model="form.enrolled_at"
+                            type="date"
+                            required
+                        />
                         <InputError :message="errors.enrolled_at" />
                     </div>
                 </div>
@@ -273,7 +347,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Enroll' }}
                     </Button>

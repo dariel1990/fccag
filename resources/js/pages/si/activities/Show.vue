@@ -42,7 +42,11 @@ type MemberAttendance = {
     name: string;
     ph_id: string | null;
     caregiver: string | null;
-    attendance: { status: string; remarks: string | null; recommendation: string | null } | null;
+    attendance: {
+        status: string;
+        remarks: string | null;
+        recommendation: string | null;
+    } | null;
 };
 
 type AttendanceStatus = { value: string; label: string; color: string };
@@ -85,7 +89,8 @@ function saveAttendance() {
     );
 }
 
-const presentCount = () => attendances.value.filter((a) => a.status === 'present').length;
+const presentCount = () =>
+    attendances.value.filter((a) => a.status === 'present').length;
 </script>
 
 <template>
@@ -106,7 +111,10 @@ const presentCount = () => attendances.value.filter((a) => a.status === 'present
 
             <!-- Activity Meta -->
             <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-                <div v-if="siActivity.speaker" class="rounded-lg bg-muted/40 p-3">
+                <div
+                    v-if="siActivity.speaker"
+                    class="rounded-lg bg-muted/40 p-3"
+                >
                     <div class="text-xs text-muted-foreground">Speaker</div>
                     <div class="font-medium">{{ siActivity.speaker }}</div>
                 </div>
@@ -114,19 +122,32 @@ const presentCount = () => attendances.value.filter((a) => a.status === 'present
                     <div class="text-xs text-muted-foreground">Topic</div>
                     <div class="font-medium">{{ siActivity.topic }}</div>
                 </div>
-                <div v-if="siActivity.memory_verse" class="col-span-2 rounded-lg bg-muted/40 p-3">
-                    <div class="text-xs text-muted-foreground">Memory Verse</div>
+                <div
+                    v-if="siActivity.memory_verse"
+                    class="col-span-2 rounded-lg bg-muted/40 p-3"
+                >
+                    <div class="text-xs text-muted-foreground">
+                        Memory Verse
+                    </div>
                     <div class="font-medium">{{ siActivity.memory_verse }}</div>
                 </div>
             </div>
 
             <!-- Attendance Table -->
-            <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                <div class="flex items-center justify-between border-b border-sidebar-border/70 p-4 dark:border-sidebar-border">
+            <div
+                class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+            >
+                <div
+                    class="flex items-center justify-between border-b border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                >
                     <div class="text-sm text-muted-foreground">
                         {{ presentCount() }}/{{ members.length }} present
                     </div>
-                    <Button size="sm" :disabled="saving" @click="saveAttendance">
+                    <Button
+                        size="sm"
+                        :disabled="saving"
+                        @click="saveAttendance"
+                    >
                         <Save class="mr-2 h-4 w-4" />
                         {{ saving ? 'Saving...' : 'Save Attendance' }}
                     </Button>
@@ -148,16 +169,33 @@ const presentCount = () => attendances.value.filter((a) => a.status === 'present
                         <TableEmpty v-if="members.length === 0" :colspan="7">
                             No members assigned to this activity.
                         </TableEmpty>
-                        <TableRow v-for="(member, idx) in members" :key="member.id">
-                            <TableCell class="text-center text-muted-foreground">{{ idx + 1 }}</TableCell>
-                            <TableCell class="font-medium">{{ member.name }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.caregiver || '—' }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.ph_id || '—' }}</TableCell>
+                        <TableRow
+                            v-for="(member, idx) in members"
+                            :key="member.id"
+                        >
+                            <TableCell
+                                class="text-center text-muted-foreground"
+                                >{{ idx + 1 }}</TableCell
+                            >
+                            <TableCell class="font-medium">{{
+                                member.name
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.caregiver || '—'
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.ph_id || '—'
+                            }}</TableCell>
                             <TableCell>
                                 <Multiselect
                                     v-if="attendances[idx]"
                                     v-model="attendances[idx].status"
-                                    :options="attendanceStatuses.map((s) => ({ value: s.value, label: s.label }))"
+                                    :options="
+                                        attendanceStatuses.map((s) => ({
+                                            value: s.value,
+                                            label: s.label,
+                                        }))
+                                    "
                                     label="label"
                                     value-prop="value"
                                     :can-clear="false"
@@ -170,7 +208,15 @@ const presentCount = () => attendances.value.filter((a) => a.status === 'present
                                     rows="1"
                                     class="w-full resize-none overflow-hidden rounded border border-input bg-background px-2 py-1 text-sm leading-relaxed"
                                     placeholder="Optional remarks"
-                                    @input="(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }"
+                                    @input="
+                                        (e) => {
+                                            const t =
+                                                e.target as HTMLTextAreaElement;
+                                            t.style.height = 'auto';
+                                            t.style.height =
+                                                t.scrollHeight + 'px';
+                                        }
+                                    "
                                 />
                             </TableCell>
                             <TableCell>
@@ -180,7 +226,15 @@ const presentCount = () => attendances.value.filter((a) => a.status === 'present
                                     rows="1"
                                     class="w-full resize-none overflow-hidden rounded border border-input bg-background px-2 py-1 text-sm leading-relaxed"
                                     placeholder="Optional recommendation"
-                                    @input="(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }"
+                                    @input="
+                                        (e) => {
+                                            const t =
+                                                e.target as HTMLTextAreaElement;
+                                            t.style.height = 'auto';
+                                            t.style.height =
+                                                t.scrollHeight + 'px';
+                                        }
+                                    "
                                 />
                             </TableCell>
                         </TableRow>

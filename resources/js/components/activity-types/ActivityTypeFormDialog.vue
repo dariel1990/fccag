@@ -97,7 +97,11 @@ function submit() {
     };
 
     if (isEdit.value) {
-        router.put(updateActivityType(props.activityType!.id).url, form.value, options);
+        router.put(
+            updateActivityType(props.activityType!.id).url,
+            form.value,
+            options,
+        );
     } else {
         router.post(storeActivityType().url, form.value, options);
     }
@@ -112,22 +116,37 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-lg">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Activity Type' : 'Add Activity Type' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Activity Type' : 'Add Activity Type'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update activity type details' : 'Add a new type of church activity' }}
+                    {{
+                        isEdit
+                            ? 'Update activity type details'
+                            : 'Add a new type of church activity'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="at_name">Name</Label>
-                    <Input id="at_name" v-model="form.name" required placeholder="e.g. Sunday Service" />
+                    <Input
+                        id="at_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Sunday Service"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="at_description">Description</Label>
-                    <Input id="at_description" v-model="form.description" placeholder="Brief description" />
+                    <Input
+                        id="at_description"
+                        v-model="form.description"
+                        placeholder="Brief description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
@@ -144,7 +163,8 @@ function handleClose() {
                         :close-on-select="false"
                     />
                     <p class="text-xs text-muted-foreground">
-                        Only members of selected departments will appear in attendance. Leave empty to include all active members.
+                        Only members of selected departments will appear in
+                        attendance. Leave empty to include all active members.
                     </p>
                     <InputError :message="errors.department_ids" />
                 </div>
@@ -159,7 +179,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

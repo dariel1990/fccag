@@ -53,9 +53,7 @@ const props = defineProps<{
     actions: EnumCase[];
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Users', href: index().url },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Users', href: index().url }];
 
 // ── Create dialog ────────────────────────────────────────────────────────────
 
@@ -162,7 +160,9 @@ function togglePermission(
     const current = form.permissions[moduleValue] ?? [];
 
     if (current.includes(actionValue)) {
-        form.permissions[moduleValue] = current.filter((a) => a !== actionValue);
+        form.permissions[moduleValue] = current.filter(
+            (a) => a !== actionValue,
+        );
     } else {
         form.permissions[moduleValue] = [...current, actionValue];
     }
@@ -244,7 +244,10 @@ const isEditFullAccess = computed(() => editForm.full_access);
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableEmpty v-if="props.users.length === 0" :colspan="5">
+                        <TableEmpty
+                            v-if="props.users.length === 0"
+                            :colspan="5"
+                        >
                             No users found.
                         </TableEmpty>
                         <TableRow v-for="user in props.users" :key="user.id">
@@ -269,7 +272,9 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                     "
                                 >
                                     {{
-                                        user.is_superadmin ? 'Superadmin' : 'User'
+                                        user.is_superadmin
+                                            ? 'Superadmin'
+                                            : 'User'
                                     }}
                                 </Badge>
                             </TableCell>
@@ -277,7 +282,9 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                 {{ permissionSummary(user) }}
                             </TableCell>
                             <TableCell class="text-right">
-                                <div class="flex items-center justify-end gap-2">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -290,7 +297,9 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                         size="icon"
                                         @click="deleteUser(user)"
                                     >
-                                        <Trash2 class="h-4 w-4 text-destructive" />
+                                        <Trash2
+                                            class="h-4 w-4 text-destructive"
+                                        />
                                     </Button>
                                 </div>
                             </TableCell>
@@ -350,7 +359,9 @@ const isEditFullAccess = computed(() => editForm.full_access);
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="create-password-confirm">Confirm Password</Label>
+                        <Label for="create-password-confirm"
+                            >Confirm Password</Label
+                        >
                         <Input
                             id="create-password-confirm"
                             type="password"
@@ -367,20 +378,31 @@ const isEditFullAccess = computed(() => editForm.full_access);
                         <Checkbox
                             id="create-is_superadmin"
                             :model-value="createForm.is_superadmin"
-                            @update:model-value="createForm.is_superadmin = $event as boolean"
+                            @update:model-value="
+                                createForm.is_superadmin = $event as boolean
+                            "
                         />
                         <Label for="create-is_superadmin">Superadmin</Label>
-                        <span class="text-xs text-muted-foreground">— Grants unrestricted access to everything</span>
+                        <span class="text-xs text-muted-foreground"
+                            >— Grants unrestricted access to everything</span
+                        >
                     </div>
 
-                    <div v-if="!createForm.is_superadmin" class="flex items-center gap-2">
+                    <div
+                        v-if="!createForm.is_superadmin"
+                        class="flex items-center gap-2"
+                    >
                         <Checkbox
                             id="create-full_access"
                             :model-value="createForm.full_access"
-                            @update:model-value="createForm.full_access = $event as boolean"
+                            @update:model-value="
+                                createForm.full_access = $event as boolean
+                            "
                         />
                         <Label for="create-full_access">Full Access</Label>
-                        <span class="text-xs text-muted-foreground">— Grants access to all modules and actions</span>
+                        <span class="text-xs text-muted-foreground"
+                            >— Grants access to all modules and actions</span
+                        >
                     </div>
                 </div>
 
@@ -388,15 +410,25 @@ const isEditFullAccess = computed(() => editForm.full_access);
                 <div
                     v-if="!createForm.is_superadmin"
                     class="border-t pt-4"
-                    :class="{ 'pointer-events-none opacity-40': isCreateFullAccess }"
+                    :class="{
+                        'pointer-events-none opacity-40': isCreateFullAccess,
+                    }"
                 >
                     <p class="mb-3 text-sm font-medium">Permissions</p>
-                    <div class="overflow-x-auto rounded-lg border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div
+                        class="overflow-x-auto rounded-lg border border-sidebar-border/70 dark:border-sidebar-border"
+                    >
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b bg-muted/50">
-                                    <th class="px-4 py-2 text-left font-medium">Module</th>
-                                    <th class="px-3 py-2 text-center font-medium text-primary">All</th>
+                                    <th class="px-4 py-2 text-left font-medium">
+                                        Module
+                                    </th>
+                                    <th
+                                        class="px-3 py-2 text-center font-medium text-primary"
+                                    >
+                                        All
+                                    </th>
                                     <th
                                         v-for="action in props.actions"
                                         :key="action.value"
@@ -412,11 +444,23 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                     :key="module.value"
                                     class="border-b last:border-0 hover:bg-muted/30"
                                 >
-                                    <td class="px-4 py-2 font-medium">{{ formatLabel(module.name) }}</td>
+                                    <td class="px-4 py-2 font-medium">
+                                        {{ formatLabel(module.name) }}
+                                    </td>
                                     <td class="px-3 py-2 text-center">
                                         <Checkbox
-                                            :model-value="isModuleAllChecked(createForm.permissions, module.value)"
-                                            @update:model-value="toggleAllActions(createForm, module.value)"
+                                            :model-value="
+                                                isModuleAllChecked(
+                                                    createForm.permissions,
+                                                    module.value,
+                                                )
+                                            "
+                                            @update:model-value="
+                                                toggleAllActions(
+                                                    createForm,
+                                                    module.value,
+                                                )
+                                            "
                                         />
                                     </td>
                                     <td
@@ -425,8 +469,20 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                         class="px-3 py-2 text-center"
                                     >
                                         <Checkbox
-                                            :model-value="isChecked(createForm.permissions, module.value, action.value)"
-                                            @update:model-value="togglePermission(createForm, module.value, action.value)"
+                                            :model-value="
+                                                isChecked(
+                                                    createForm.permissions,
+                                                    module.value,
+                                                    action.value,
+                                                )
+                                            "
+                                            @update:model-value="
+                                                togglePermission(
+                                                    createForm,
+                                                    module.value,
+                                                    action.value,
+                                                )
+                                            "
                                         />
                                     </td>
                                 </tr>
@@ -495,20 +551,31 @@ const isEditFullAccess = computed(() => editForm.full_access);
                         <Checkbox
                             id="edit-is_superadmin"
                             :model-value="editForm.is_superadmin"
-                            @update:model-value="editForm.is_superadmin = $event as boolean"
+                            @update:model-value="
+                                editForm.is_superadmin = $event as boolean
+                            "
                         />
                         <Label for="edit-is_superadmin">Superadmin</Label>
-                        <span class="text-xs text-muted-foreground">— Grants unrestricted access to everything</span>
+                        <span class="text-xs text-muted-foreground"
+                            >— Grants unrestricted access to everything</span
+                        >
                     </div>
 
-                    <div v-if="!editForm.is_superadmin" class="flex items-center gap-2">
+                    <div
+                        v-if="!editForm.is_superadmin"
+                        class="flex items-center gap-2"
+                    >
                         <Checkbox
                             id="edit-full_access"
                             :model-value="editForm.full_access"
-                            @update:model-value="editForm.full_access = $event as boolean"
+                            @update:model-value="
+                                editForm.full_access = $event as boolean
+                            "
                         />
                         <Label for="edit-full_access">Full Access</Label>
-                        <span class="text-xs text-muted-foreground">— Grants access to all modules and actions</span>
+                        <span class="text-xs text-muted-foreground"
+                            >— Grants access to all modules and actions</span
+                        >
                     </div>
                 </div>
 
@@ -516,15 +583,25 @@ const isEditFullAccess = computed(() => editForm.full_access);
                 <div
                     v-if="!editForm.is_superadmin"
                     class="border-t pt-4"
-                    :class="{ 'pointer-events-none opacity-40': isEditFullAccess }"
+                    :class="{
+                        'pointer-events-none opacity-40': isEditFullAccess,
+                    }"
                 >
                     <p class="mb-3 text-sm font-medium">Permissions</p>
-                    <div class="overflow-x-auto rounded-lg border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div
+                        class="overflow-x-auto rounded-lg border border-sidebar-border/70 dark:border-sidebar-border"
+                    >
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b bg-muted/50">
-                                    <th class="px-4 py-2 text-left font-medium">Module</th>
-                                    <th class="px-3 py-2 text-center font-medium text-primary">All</th>
+                                    <th class="px-4 py-2 text-left font-medium">
+                                        Module
+                                    </th>
+                                    <th
+                                        class="px-3 py-2 text-center font-medium text-primary"
+                                    >
+                                        All
+                                    </th>
                                     <th
                                         v-for="action in props.actions"
                                         :key="action.value"
@@ -540,11 +617,23 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                     :key="module.value"
                                     class="border-b last:border-0 hover:bg-muted/30"
                                 >
-                                    <td class="px-4 py-2 font-medium">{{ formatLabel(module.name) }}</td>
+                                    <td class="px-4 py-2 font-medium">
+                                        {{ formatLabel(module.name) }}
+                                    </td>
                                     <td class="px-3 py-2 text-center">
                                         <Checkbox
-                                            :model-value="isModuleAllChecked(editForm.permissions, module.value)"
-                                            @update:model-value="toggleAllActions(editForm, module.value)"
+                                            :model-value="
+                                                isModuleAllChecked(
+                                                    editForm.permissions,
+                                                    module.value,
+                                                )
+                                            "
+                                            @update:model-value="
+                                                toggleAllActions(
+                                                    editForm,
+                                                    module.value,
+                                                )
+                                            "
                                         />
                                     </td>
                                     <td
@@ -553,8 +642,20 @@ const isEditFullAccess = computed(() => editForm.full_access);
                                         class="px-3 py-2 text-center"
                                     >
                                         <Checkbox
-                                            :model-value="isChecked(editForm.permissions, module.value, action.value)"
-                                            @update:model-value="togglePermission(editForm, module.value, action.value)"
+                                            :model-value="
+                                                isChecked(
+                                                    editForm.permissions,
+                                                    module.value,
+                                                    action.value,
+                                                )
+                                            "
+                                            @update:model-value="
+                                                togglePermission(
+                                                    editForm,
+                                                    module.value,
+                                                    action.value,
+                                                )
+                                            "
                                         />
                                     </td>
                                 </tr>

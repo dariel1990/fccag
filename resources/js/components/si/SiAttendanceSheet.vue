@@ -27,7 +27,11 @@ type MemberAttendance = {
     name: string;
     ph_id: string | null;
     caregiver: string | null;
-    attendance: { status: string; remarks: string | null; recommendation: string | null } | null;
+    attendance: {
+        status: string;
+        remarks: string | null;
+        recommendation: string | null;
+    } | null;
 };
 
 type AttendanceStatus = { value: string; label: string; color: string };
@@ -54,7 +58,14 @@ const emit = defineEmits<{
     saved: [];
 }>();
 
-const attendances = ref<{ si_member_id: number; status: string; remarks: string; recommendation: string }[]>([]);
+const attendances = ref<
+    {
+        si_member_id: number;
+        status: string;
+        remarks: string;
+        recommendation: string;
+    }[]
+>([]);
 const saving = ref(false);
 const saved = ref(false);
 
@@ -70,24 +81,45 @@ watch(
                 recommendation: m.attendance?.recommendation ?? '',
             }));
             nextTick(() => {
-                document.querySelectorAll<HTMLTextAreaElement>('textarea[data-attendance]').forEach((t) => {
-                    t.style.height = 'auto';
-                    t.style.height = t.scrollHeight + 'px';
-                });
+                document
+                    .querySelectorAll<HTMLTextAreaElement>(
+                        'textarea[data-attendance]',
+                    )
+                    .forEach((t) => {
+                        t.style.height = 'auto';
+                        t.style.height = t.scrollHeight + 'px';
+                    });
             });
         }
     },
     { immediate: true },
 );
 
-const countByStatus = (status: string) => attendances.value.filter((a) => a.status === status).length;
+const countByStatus = (status: string) =>
+    attendances.value.filter((a) => a.status === status).length;
 const presentCount = () => countByStatus('present');
 
 const summaryItems = [
-    { label: 'Present', status: 'present', color: 'text-green-600 dark:text-green-400' },
-    { label: 'Absent', status: 'absent', color: 'text-red-600 dark:text-red-400' },
-    { label: 'Child Sick', status: 'child_sick', color: 'text-yellow-600 dark:text-yellow-400' },
-    { label: 'Child under Medication', status: 'child_under_medication', color: 'text-orange-600 dark:text-orange-400' },
+    {
+        label: 'Present',
+        status: 'present',
+        color: 'text-green-600 dark:text-green-400',
+    },
+    {
+        label: 'Absent',
+        status: 'absent',
+        color: 'text-red-600 dark:text-red-400',
+    },
+    {
+        label: 'Child Sick',
+        status: 'child_sick',
+        color: 'text-yellow-600 dark:text-yellow-400',
+    },
+    {
+        label: 'Child under Medication',
+        status: 'child_under_medication',
+        color: 'text-orange-600 dark:text-orange-400',
+    },
 ];
 
 function saveAttendance() {
@@ -113,28 +145,51 @@ function saveAttendance() {
 
 <template>
     <Sheet :open="open" @update:open="emit('update:open', $event)">
-        <SheetContent class="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-[calc(100vw-16rem)]">
+        <SheetContent
+            class="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-[calc(100vw-16rem)]"
+        >
             <SheetHeader class="border-b pb-4">
                 <SheetTitle>{{ activity?.title }}</SheetTitle>
                 <SheetDescription>
-                    {{ activity?.category ?? '' }} · {{ activity?.conducted_at }}
+                    {{ activity?.category ?? '' }} ·
+                    {{ activity?.conducted_at }}
                 </SheetDescription>
             </SheetHeader>
 
             <template v-if="activity">
                 <!-- Meta -->
-                <div v-if="activity.speaker || activity.topic || activity.memory_verse" class="grid grid-cols-2 gap-3 border-b p-4 text-sm">
-                    <div v-if="activity.speaker" class="rounded-lg bg-muted/40 p-3">
+                <div
+                    v-if="
+                        activity.speaker ||
+                        activity.topic ||
+                        activity.memory_verse
+                    "
+                    class="grid grid-cols-2 gap-3 border-b p-4 text-sm"
+                >
+                    <div
+                        v-if="activity.speaker"
+                        class="rounded-lg bg-muted/40 p-3"
+                    >
                         <div class="text-xs text-muted-foreground">Speaker</div>
                         <div class="font-medium">{{ activity.speaker }}</div>
                     </div>
-                    <div v-if="activity.topic" class="rounded-lg bg-muted/40 p-3">
+                    <div
+                        v-if="activity.topic"
+                        class="rounded-lg bg-muted/40 p-3"
+                    >
                         <div class="text-xs text-muted-foreground">Topic</div>
                         <div class="font-medium">{{ activity.topic }}</div>
                     </div>
-                    <div v-if="activity.memory_verse" class="col-span-2 rounded-lg bg-muted/40 p-3">
-                        <div class="text-xs text-muted-foreground">Memory Verse</div>
-                        <div class="font-medium">{{ activity.memory_verse }}</div>
+                    <div
+                        v-if="activity.memory_verse"
+                        class="col-span-2 rounded-lg bg-muted/40 p-3"
+                    >
+                        <div class="text-xs text-muted-foreground">
+                            Memory Verse
+                        </div>
+                        <div class="font-medium">
+                            {{ activity.memory_verse }}
+                        </div>
                     </div>
                 </div>
 
@@ -157,16 +212,25 @@ function saveAttendance() {
                         <div :class="['text-2xl font-bold', item.color]">
                             {{ countByStatus(item.status) }}
                         </div>
-                        <div class="mt-0.5 text-xs text-muted-foreground">{{ item.label }}</div>
+                        <div class="mt-0.5 text-xs text-muted-foreground">
+                            {{ item.label }}
+                        </div>
                     </div>
                 </div>
 
                 <!-- Attendance -->
                 <div class="flex items-center justify-between border-t p-4">
                     <span class="text-sm text-muted-foreground">
-                        {{ presentCount() }}/{{ activity.members.length }} present
+                        {{ presentCount() }}/{{
+                            activity.members.length
+                        }}
+                        present
                     </span>
-                    <Button size="sm" :disabled="saving" @click="saveAttendance">
+                    <Button
+                        size="sm"
+                        :disabled="saving"
+                        @click="saveAttendance"
+                    >
                         <Save class="mr-2 h-4 w-4" />
                         {{ saving ? 'Saving...' : 'Save Attendance' }}
                     </Button>
@@ -176,7 +240,9 @@ function saveAttendance() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead class="w-10 text-center">#</TableHead>
+                                <TableHead class="w-10 text-center"
+                                    >#</TableHead
+                                >
                                 <TableHead>Member</TableHead>
                                 <TableHead>Caregiver</TableHead>
                                 <TableHead>PH ID</TableHead>
@@ -186,19 +252,39 @@ function saveAttendance() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableEmpty v-if="activity.members.length === 0" :colspan="7">
+                            <TableEmpty
+                                v-if="activity.members.length === 0"
+                                :colspan="7"
+                            >
                                 No members assigned to this activity.
                             </TableEmpty>
-                            <TableRow v-for="(member, idx) in activity.members" :key="member.id">
-                                <TableCell class="text-center text-muted-foreground">{{ idx + 1 }}</TableCell>
-                                <TableCell class="font-medium">{{ member.name }}</TableCell>
-                                <TableCell class="text-muted-foreground">{{ member.caregiver || '—' }}</TableCell>
-                                <TableCell class="text-muted-foreground">{{ member.ph_id || '—' }}</TableCell>
+                            <TableRow
+                                v-for="(member, idx) in activity.members"
+                                :key="member.id"
+                            >
+                                <TableCell
+                                    class="text-center text-muted-foreground"
+                                    >{{ idx + 1 }}</TableCell
+                                >
+                                <TableCell class="font-medium">{{
+                                    member.name
+                                }}</TableCell>
+                                <TableCell class="text-muted-foreground">{{
+                                    member.caregiver || '—'
+                                }}</TableCell>
+                                <TableCell class="text-muted-foreground">{{
+                                    member.ph_id || '—'
+                                }}</TableCell>
                                 <TableCell>
                                     <Multiselect
                                         v-if="attendances[idx]"
                                         v-model="attendances[idx].status"
-                                        :options="attendanceStatuses.map((s) => ({ value: s.value, label: s.label }))"
+                                        :options="
+                                            attendanceStatuses.map((s) => ({
+                                                value: s.value,
+                                                label: s.label,
+                                            }))
+                                        "
                                         label="label"
                                         value-prop="value"
                                         :can-clear="false"
@@ -212,18 +298,36 @@ function saveAttendance() {
                                         rows="1"
                                         class="w-full resize-none overflow-hidden rounded border border-input bg-background px-2 py-1 text-sm leading-relaxed"
                                         placeholder="Optional remarks"
-                                        @input="(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }"
+                                        @input="
+                                            (e) => {
+                                                const t =
+                                                    e.target as HTMLTextAreaElement;
+                                                t.style.height = 'auto';
+                                                t.style.height =
+                                                    t.scrollHeight + 'px';
+                                            }
+                                        "
                                     />
                                 </TableCell>
                                 <TableCell>
                                     <textarea
                                         v-if="attendances[idx]"
-                                        v-model="attendances[idx].recommendation"
+                                        v-model="
+                                            attendances[idx].recommendation
+                                        "
                                         data-attendance
                                         rows="1"
                                         class="w-full resize-none overflow-hidden rounded border border-input bg-background px-2 py-1 text-sm leading-relaxed"
                                         placeholder="Optional recommendation"
-                                        @input="(e) => { const t = e.target as HTMLTextAreaElement; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }"
+                                        @input="
+                                            (e) => {
+                                                const t =
+                                                    e.target as HTMLTextAreaElement;
+                                                t.style.height = 'auto';
+                                                t.style.height =
+                                                    t.scrollHeight + 'px';
+                                            }
+                                        "
                                     />
                                 </TableCell>
                             </TableRow>

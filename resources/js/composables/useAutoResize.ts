@@ -1,6 +1,9 @@
 import { type Ref, onMounted, watch } from 'vue';
 
-export function useAutoResize(el: Ref<HTMLTextAreaElement | null>, value: Ref<string>) {
+export function useAutoResize(
+    el: Ref<HTMLTextAreaElement | null>,
+    value: Ref<string>,
+) {
     function resize() {
         if (!el.value) return;
         el.value.style.height = 'auto';

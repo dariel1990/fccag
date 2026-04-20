@@ -63,7 +63,12 @@ watch(
                 };
             } else {
                 isEdit.value = false;
-                form.value = { name: '', leader: '', description: '', is_active: true };
+                form.value = {
+                    name: '',
+                    leader: '',
+                    description: '',
+                    is_active: true,
+                };
             }
         }
     },
@@ -88,7 +93,11 @@ function submit() {
     };
 
     if (isEdit.value) {
-        router.put(updateCellGroup(props.cellGroup!.id).url, form.value, options);
+        router.put(
+            updateCellGroup(props.cellGroup!.id).url,
+            form.value,
+            options,
+        );
     } else {
         router.post(storeCellGroup().url, form.value, options);
     }
@@ -103,28 +112,47 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-md">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Cell Group' : 'Add Cell Group' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Cell Group' : 'Add Cell Group'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update cell group details' : 'Add a new church cell group' }}
+                    {{
+                        isEdit
+                            ? 'Update cell group details'
+                            : 'Add a new church cell group'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="cg_name">Name</Label>
-                    <Input id="cg_name" v-model="form.name" required placeholder="e.g. Nehemiah Group" />
+                    <Input
+                        id="cg_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Nehemiah Group"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="cg_leader">Leader</Label>
-                    <Input id="cg_leader" v-model="form.leader" placeholder="Leader's name" />
+                    <Input
+                        id="cg_leader"
+                        v-model="form.leader"
+                        placeholder="Leader's name"
+                    />
                     <InputError :message="errors.leader" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="cg_description">Description</Label>
-                    <Input id="cg_description" v-model="form.description" placeholder="Brief description" />
+                    <Input
+                        id="cg_description"
+                        v-model="form.description"
+                        placeholder="Brief description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
@@ -138,7 +166,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

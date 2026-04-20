@@ -79,7 +79,10 @@ defineProps<{
                 </div>
 
                 <div class="flex items-center">
-                    <Label for="remember" class="flex items-center space-x-3 text-gray-600">
+                    <Label
+                        for="remember"
+                        class="flex items-center space-x-3 text-gray-600"
+                    >
                         <Checkbox id="remember" name="remember" :tabindex="3" />
                         <span class="text-sm">Remember me</span>
                     </Label>

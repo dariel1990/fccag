@@ -2,7 +2,10 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Plus, Pencil, Trash2, Eye } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
-import { index, destroy } from '@/actions/App/Http/Controllers/Si/SiActivityController';
+import {
+    index,
+    destroy,
+} from '@/actions/App/Http/Controllers/Si/SiActivityController';
 import Heading from '@/components/Heading.vue';
 import SiActivityFormDialog from '@/components/si/SiActivityFormDialog.vue';
 import SiAttendanceSheet from '@/components/si/SiAttendanceSheet.vue';
@@ -55,14 +58,18 @@ const props = defineProps<{
     attendanceStatuses: AttendanceStatus[];
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'SI Activities', href: index().url }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'SI Activities', href: index().url },
+];
 
 const selectedCategoryId = ref<number | null>(null);
 
 const filteredActivities = computed(() =>
     selectedCategoryId.value === null
         ? props.activities
-        : props.activities.filter((a) => a.si_activity_category_id === selectedCategoryId.value),
+        : props.activities.filter(
+              (a) => a.si_activity_category_id === selectedCategoryId.value,
+          ),
 );
 
 const formDialogOpen = ref(false);
@@ -111,7 +118,10 @@ onMounted(() => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex items-center justify-between">
-                <Heading title="SI Activities" description="Manage SI program activities and attendance" />
+                <Heading
+                    title="SI Activities"
+                    description="Manage SI program activities and attendance"
+                />
                 <Button @click="openCreateDialog">
                     <Plus class="mr-2 h-4 w-4" />
                     Add Activity
@@ -122,31 +132,43 @@ onMounted(() => {
             <div class="flex flex-wrap gap-2">
                 <button
                     class="rounded-full border px-3 py-1 text-sm transition-colors"
-                    :class="selectedCategoryId === null
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-sidebar-border/70 text-muted-foreground hover:border-primary hover:text-foreground dark:border-sidebar-border'"
+                    :class="
+                        selectedCategoryId === null
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-sidebar-border/70 text-muted-foreground hover:border-primary hover:text-foreground dark:border-sidebar-border'
+                    "
                     @click="selectedCategoryId = null"
                 >
                     All
-                    <span class="ml-1 text-xs opacity-70">({{ activities.length }})</span>
+                    <span class="ml-1 text-xs opacity-70"
+                        >({{ activities.length }})</span
+                    >
                 </button>
                 <button
                     v-for="cat in categories"
                     :key="cat.id"
                     class="rounded-full border px-3 py-1 text-sm transition-colors"
-                    :class="selectedCategoryId === cat.id
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-sidebar-border/70 text-muted-foreground hover:border-primary hover:text-foreground dark:border-sidebar-border'"
+                    :class="
+                        selectedCategoryId === cat.id
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-sidebar-border/70 text-muted-foreground hover:border-primary hover:text-foreground dark:border-sidebar-border'
+                    "
                     @click="selectedCategoryId = cat.id"
                 >
                     {{ cat.name }}
                     <span class="ml-1 text-xs opacity-70">
-                        ({{ activities.filter((a) => a.si_activity_category_id === cat.id).length }})
+                        ({{
+                            activities.filter(
+                                (a) => a.si_activity_category_id === cat.id,
+                            ).length
+                        }})
                     </span>
                 </button>
             </div>
 
-            <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+            <div
+                class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+            >
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -160,29 +182,67 @@ onMounted(() => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableEmpty v-if="filteredActivities.length === 0" :colspan="7">
+                        <TableEmpty
+                            v-if="filteredActivities.length === 0"
+                            :colspan="7"
+                        >
                             No activities found.
                         </TableEmpty>
-                        <TableRow v-for="activity in filteredActivities" :key="activity.id">
-                            <TableCell class="font-medium">{{ activity.title }}</TableCell>
+                        <TableRow
+                            v-for="activity in filteredActivities"
+                            :key="activity.id"
+                        >
+                            <TableCell class="font-medium">{{
+                                activity.title
+                            }}</TableCell>
                             <TableCell>
-                                <Badge v-if="activity.category" variant="outline">{{ activity.category }}</Badge>
-                                <span v-else class="text-muted-foreground">—</span>
+                                <Badge
+                                    v-if="activity.category"
+                                    variant="outline"
+                                    >{{ activity.category }}</Badge
+                                >
+                                <span v-else class="text-muted-foreground"
+                                    >—</span
+                                >
                             </TableCell>
-                            <TableCell class="text-muted-foreground">{{ activity.speaker || '—' }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ activity.topic || '—' }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ activity.conducted_at }}</TableCell>
-                            <TableCell class="text-center">{{ activity.assigned_members_count }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                activity.speaker || '—'
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                activity.topic || '—'
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                activity.conducted_at
+                            }}</TableCell>
+                            <TableCell class="text-center">{{
+                                activity.assigned_members_count
+                            }}</TableCell>
                             <TableCell class="text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <Button variant="ghost" size="icon" @click="openAttendanceSheet(activity)">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="openAttendanceSheet(activity)"
+                                    >
                                         <Eye class="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" @click="openEditDialog(activity)">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="openEditDialog(activity)"
+                                    >
                                         <Pencil class="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" @click="deleteActivity(activity)">
-                                        <Trash2 class="h-4 w-4 text-destructive" />
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="deleteActivity(activity)"
+                                    >
+                                        <Trash2
+                                            class="h-4 w-4 text-destructive"
+                                        />
                                     </Button>
                                 </div>
                             </TableCell>

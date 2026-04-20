@@ -70,52 +70,132 @@ const allNavGroups: NavGroupWithPermissions[] = [
     {
         label: 'Overview',
         items: [
-            { title: 'Dashboard', href: dashboard(), icon: LayoutGrid, permission: null },
+            {
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+                permission: null,
+            },
         ],
     },
     {
         label: 'People',
         items: [
-            { title: 'People of God', href: participantsIndex(), icon: Users, permission: 'participants' },
-            { title: 'Cell Groups', href: cellGroupsIndex(), icon: Layers, permission: 'cell_groups' },
-            { title: 'Classifications', href: classificationsIndex(), icon: UserCheck, permission: 'classifications' },
+            {
+                title: 'People of God',
+                href: participantsIndex(),
+                icon: Users,
+                permission: 'participants',
+            },
+            {
+                title: 'Cell Groups',
+                href: cellGroupsIndex(),
+                icon: Layers,
+                permission: 'cell_groups',
+            },
+            {
+                title: 'Classifications',
+                href: classificationsIndex(),
+                icon: UserCheck,
+                permission: 'classifications',
+            },
         ],
     },
     {
         label: 'Organization',
         items: [
-            { title: 'Ministries', href: ministriesIndex(), icon: Church, permission: 'ministries' },
-            { title: 'Departments', href: departmentsIndex(), icon: Building2, permission: 'departments' },
-            { title: 'Pastors', href: pastorsIndex(), icon: Users, permission: 'pastors' },
+            {
+                title: 'Ministries',
+                href: ministriesIndex(),
+                icon: Church,
+                permission: 'ministries',
+            },
+            {
+                title: 'Departments',
+                href: departmentsIndex(),
+                icon: Building2,
+                permission: 'departments',
+            },
+            {
+                title: 'Pastors',
+                href: pastorsIndex(),
+                icon: Users,
+                permission: 'pastors',
+            },
         ],
     },
     {
         label: 'Activities',
         items: [
-            { title: 'Activities', href: activitiesIndex(), icon: Calendar, permission: 'activities' },
-            { title: 'Activity Types', href: activityTypesIndex(), icon: Tags, permission: 'activity_types' },
+            {
+                title: 'Activities',
+                href: activitiesIndex(),
+                icon: Calendar,
+                permission: 'activities',
+            },
+            {
+                title: 'Activity Types',
+                href: activityTypesIndex(),
+                icon: Tags,
+                permission: 'activity_types',
+            },
         ],
     },
     {
         label: 'SI Program',
         items: [
-            { title: 'SI Members', href: siMembersIndex(), icon: Baby, permission: 'si_members' },
-            { title: 'SI Activities', href: siActivitiesIndex(), icon: ListChecks, permission: 'si_activities' },
-            { title: 'Activity Categories', href: siActivityCategoriesIndex(), icon: Tags, permission: 'si_activity_categories' },
-            { title: 'SI Report', href: siReportsIndex(), icon: ClipboardList, permission: 'si_activities' },
+            {
+                title: 'SI Members',
+                href: siMembersIndex(),
+                icon: Baby,
+                permission: 'si_members',
+            },
+            {
+                title: 'SI Activities',
+                href: siActivitiesIndex(),
+                icon: ListChecks,
+                permission: 'si_activities',
+            },
+            {
+                title: 'Activity Categories',
+                href: siActivityCategoriesIndex(),
+                icon: Tags,
+                permission: 'si_activity_categories',
+            },
+            {
+                title: 'SI Report',
+                href: siReportsIndex(),
+                icon: ClipboardList,
+                permission: 'si_activities',
+            },
         ],
     },
     {
         label: 'Administration',
         items: [
-            { title: 'Users', href: usersIndex(), icon: Users, permission: '__superAdmin' },
+            {
+                title: 'Users',
+                href: usersIndex(),
+                icon: Users,
+                permission: '__superAdmin',
+            },
         ],
     },
     {
         label: 'Reports & Content',
         items: [
-            { title: 'Quarterly Report', href: quarterlyReport(), icon: ChartBar, permission: 'activities' },
-            { title: 'Blog Posts', href: blogIndex(), icon: Newspaper, permission: 'posts' },
+            {
+                title: 'Quarterly Report',
+                href: quarterlyReport(),
+                icon: ChartBar,
+                permission: 'activities',
+            },
+            {
+                title: 'Blog Posts',
+                href: blogIndex(),
+                icon: Newspaper,
+                permission: 'posts',
+            },
         ],
     },
 ];

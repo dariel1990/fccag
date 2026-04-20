@@ -52,10 +52,17 @@ const isEdit = ref(false);
 const isProcessing = ref(false);
 const errors = ref<Record<string, string>>({});
 
-const categoryOptions = ref(props.categories.map((c) => ({ value: String(c.id), label: c.name })));
-const memberOptions = ref(props.members.map((m) => ({ value: m.id, label: m.name })));
+const categoryOptions = ref(
+    props.categories.map((c) => ({ value: String(c.id), label: c.name })),
+);
+const memberOptions = ref(
+    props.members.map((m) => ({ value: m.id, label: m.name })),
+);
 const churchActivityOptions = ref(
-    props.churchActivities.map((a) => ({ value: a.id, label: `${a.title} (${a.activity_date})` })),
+    props.churchActivities.map((a) => ({
+        value: a.id,
+        label: `${a.title} (${a.activity_date})`,
+    })),
 );
 
 const form = ref({
@@ -74,8 +81,14 @@ watch(
     (isOpen) => {
         if (isOpen) {
             errors.value = {};
-            categoryOptions.value = props.categories.map((c) => ({ value: String(c.id), label: c.name }));
-            memberOptions.value = props.members.map((m) => ({ value: m.id, label: m.name }));
+            categoryOptions.value = props.categories.map((c) => ({
+                value: String(c.id),
+                label: c.name,
+            }));
+            memberOptions.value = props.members.map((m) => ({
+                value: m.id,
+                label: m.name,
+            }));
             churchActivityOptions.value = props.churchActivities.map((a) => ({
                 value: a.id,
                 label: `${a.title} (${a.activity_date})`,
@@ -84,7 +97,9 @@ watch(
             if (props.activity) {
                 isEdit.value = true;
                 form.value = {
-                    si_activity_category_id: String(props.activity.si_activity_category_id),
+                    si_activity_category_id: String(
+                        props.activity.si_activity_category_id,
+                    ),
                     activity_id: props.activity.activity_id,
                     title: props.activity.title,
                     speaker: props.activity.speaker ?? '',
@@ -144,9 +159,15 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? `Edit: ${activity?.title}` : 'Create SI Activity' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? `Edit: ${activity?.title}` : 'Create SI Activity'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update activity details and assigned members' : 'Add a new activity and assign members' }}
+                    {{
+                        isEdit
+                            ? 'Update activity details and assigned members'
+                            : 'Add a new activity and assign members'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
@@ -166,33 +187,50 @@ function handleClose() {
                     </div>
                     <div class="space-y-1.5">
                         <Label>Date</Label>
-                        <Input v-model="form.conducted_at" type="date" required />
+                        <Input
+                            v-model="form.conducted_at"
+                            type="date"
+                            required
+                        />
                         <InputError :message="errors.conducted_at" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
                     <Label>Activity Title</Label>
-                    <Input v-model="form.title" required placeholder="e.g. Life Class Zone 1" />
+                    <Input
+                        v-model="form.title"
+                        required
+                        placeholder="e.g. Life Class Zone 1"
+                    />
                     <InputError :message="errors.title" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <Label>Speaker / Teacher</Label>
-                        <Input v-model="form.speaker" placeholder="Speaker name" />
+                        <Input
+                            v-model="form.speaker"
+                            placeholder="Speaker name"
+                        />
                         <InputError :message="errors.speaker" />
                     </div>
                     <div class="space-y-1.5">
                         <Label>Topic</Label>
-                        <Input v-model="form.topic" placeholder="Session topic" />
+                        <Input
+                            v-model="form.topic"
+                            placeholder="Session topic"
+                        />
                         <InputError :message="errors.topic" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
                     <Label>Memory Verse</Label>
-                    <Input v-model="form.memory_verse" placeholder="e.g. Psalms 127:3" />
+                    <Input
+                        v-model="form.memory_verse"
+                        placeholder="e.g. Psalms 127:3"
+                    />
                     <InputError :message="errors.memory_verse" />
                 </div>
 
@@ -226,7 +264,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create Activity' }}
                     </Button>

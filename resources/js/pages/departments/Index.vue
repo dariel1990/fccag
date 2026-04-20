@@ -134,7 +134,7 @@ function handleDeleteConfirm() {
                                 />
                                 <div
                                     v-else
-                                    class="bg-muted h-8 w-8 rounded-full"
+                                    class="h-8 w-8 rounded-full bg-muted"
                                 />
                             </TableCell>
                             <TableCell class="font-medium">

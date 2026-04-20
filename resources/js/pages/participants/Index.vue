@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import {
-    Plus,
-    Pencil,
-    Trash2,
-    Search,
-    X,
-    Filter,
-    Eye,
-} from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Search, X, Filter, Eye } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import {
     index,
@@ -67,41 +59,51 @@ const participants = ref<Participant[]>(props.participants || []);
 
 // Filter options
 const filterOptions = ref({
-    cell_groups: props.cellGroups ?? [] as { id: number; name: string }[],
-    classifications: props.classifications ?? [] as { id: number; name: string }[],
-    ministries: props.ministries ?? [] as { id: number; name: string }[],
-    departments: props.departments ?? [] as { id: number; name: string }[],
+    cell_groups: props.cellGroups ?? ([] as { id: number; name: string }[]),
+    classifications:
+        props.classifications ?? ([] as { id: number; name: string }[]),
+    ministries: props.ministries ?? ([] as { id: number; name: string }[]),
+    departments: props.departments ?? ([] as { id: number; name: string }[]),
 });
 
 // Default classification to "Member"
-const memberClassificationId = props.classifications?.find(
-    (c) => c.name.toLowerCase() === 'member',
-)?.id ?? null;
+const memberClassificationId =
+    props.classifications?.find((c) => c.name.toLowerCase() === 'member')?.id ??
+    null;
 
 const searchQuery = ref('');
 const selectedBirthMonth = ref('');
 const selectedCellGroup = ref('');
-const selectedClassification = ref(memberClassificationId ? String(memberClassificationId) : '');
+const selectedClassification = ref(
+    memberClassificationId ? String(memberClassificationId) : '',
+);
 const selectedMinistry = ref('');
 const selectedDepartment = ref('');
 const showFilters = ref(false);
 
 const MONTHS = [
-    { value: '1', label: 'January' }, { value: '2', label: 'February' },
-    { value: '3', label: 'March' }, { value: '4', label: 'April' },
-    { value: '5', label: 'May' }, { value: '6', label: 'June' },
-    { value: '7', label: 'July' }, { value: '8', label: 'August' },
-    { value: '9', label: 'September' }, { value: '10', label: 'October' },
-    { value: '11', label: 'November' }, { value: '12', label: 'December' },
+    { value: '1', label: 'January' },
+    { value: '2', label: 'February' },
+    { value: '3', label: 'March' },
+    { value: '4', label: 'April' },
+    { value: '5', label: 'May' },
+    { value: '6', label: 'June' },
+    { value: '7', label: 'July' },
+    { value: '8', label: 'August' },
+    { value: '9', label: 'September' },
+    { value: '10', label: 'October' },
+    { value: '11', label: 'November' },
+    { value: '12', label: 'December' },
 ];
 
-const activeFilterCount = computed(() =>
-    (searchQuery.value ? 1 : 0) +
-    (selectedBirthMonth.value ? 1 : 0) +
-    (selectedCellGroup.value ? 1 : 0) +
-    (selectedClassification.value ? 1 : 0) +
-    (selectedMinistry.value ? 1 : 0) +
-    (selectedDepartment.value ? 1 : 0),
+const activeFilterCount = computed(
+    () =>
+        (searchQuery.value ? 1 : 0) +
+        (selectedBirthMonth.value ? 1 : 0) +
+        (selectedCellGroup.value ? 1 : 0) +
+        (selectedClassification.value ? 1 : 0) +
+        (selectedMinistry.value ? 1 : 0) +
+        (selectedDepartment.value ? 1 : 0),
 );
 
 const hasActiveFilters = computed(() => activeFilterCount.value > 0);
@@ -119,10 +121,26 @@ const filteredParticipants = computed(() => {
         } else if (selectedBirthMonth.value && !p.birthday) {
             return false;
         }
-        if (selectedCellGroup.value && p.cell_group_id !== Number(selectedCellGroup.value)) return false;
-        if (selectedClassification.value && p.classification_id !== Number(selectedClassification.value)) return false;
-        if (selectedMinistry.value && !p.ministry_ids?.includes(Number(selectedMinistry.value))) return false;
-        if (selectedDepartment.value && p.department_id !== Number(selectedDepartment.value)) return false;
+        if (
+            selectedCellGroup.value &&
+            p.cell_group_id !== Number(selectedCellGroup.value)
+        )
+            return false;
+        if (
+            selectedClassification.value &&
+            p.classification_id !== Number(selectedClassification.value)
+        )
+            return false;
+        if (
+            selectedMinistry.value &&
+            !p.ministry_ids?.includes(Number(selectedMinistry.value))
+        )
+            return false;
+        if (
+            selectedDepartment.value &&
+            p.department_id !== Number(selectedDepartment.value)
+        )
+            return false;
         return true;
     });
 });
@@ -193,9 +211,7 @@ function handleDeleteConfirm() {
     <Head title="People of God" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 p-4"
-        >
+        <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex items-center justify-between">
                 <Heading
                     title="People of God"
@@ -211,7 +227,9 @@ function handleDeleteConfirm() {
             <div class="space-y-3">
                 <!-- Search Bar -->
                 <div class="relative">
-                    <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search
+                        class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
                     <Input
                         v-model="searchQuery"
                         placeholder="Search by name..."
@@ -236,11 +254,21 @@ function handleDeleteConfirm() {
                     >
                         <Filter class="h-4 w-4" />
                         Filters
-                        <Badge v-if="activeFilterCount > 0" variant="secondary" class="ml-1 px-1.5 py-0">
+                        <Badge
+                            v-if="activeFilterCount > 0"
+                            variant="secondary"
+                            class="ml-1 px-1.5 py-0"
+                        >
                             {{ activeFilterCount }}
                         </Badge>
                     </Button>
-                    <Button v-if="hasActiveFilters" variant="ghost" size="sm" class="text-muted-foreground" @click="clearFilters">
+                    <Button
+                        v-if="hasActiveFilters"
+                        variant="ghost"
+                        size="sm"
+                        class="text-muted-foreground"
+                        @click="clearFilters"
+                    >
                         Clear all
                     </Button>
                 </div>
@@ -248,74 +276,120 @@ function handleDeleteConfirm() {
                 <!-- Filter Panel -->
                 <div
                     v-if="showFilters"
-                    class="grid grid-cols-2 gap-2 rounded-lg border border-sidebar-border/70 p-3 dark:border-sidebar-border sm:grid-cols-3 lg:grid-cols-5"
+                    class="grid grid-cols-2 gap-2 rounded-lg border border-sidebar-border/70 p-3 sm:grid-cols-3 lg:grid-cols-5 dark:border-sidebar-border"
                 >
                     <!-- Birth Month -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-muted-foreground">Birth Month</label>
+                        <label class="text-xs font-medium text-muted-foreground"
+                            >Birth Month</label
+                        >
                         <select
                             v-model="selectedBirthMonth"
                             class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                         >
                             <option value="">All Months</option>
-                            <option v-for="m in MONTHS" :key="m.value" :value="m.value">{{ m.label }}</option>
+                            <option
+                                v-for="m in MONTHS"
+                                :key="m.value"
+                                :value="m.value"
+                            >
+                                {{ m.label }}
+                            </option>
                         </select>
                     </div>
 
                     <!-- Cell Group -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-muted-foreground">Cell Group</label>
+                        <label class="text-xs font-medium text-muted-foreground"
+                            >Cell Group</label
+                        >
                         <select
                             v-model="selectedCellGroup"
                             class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                         >
                             <option value="">All Groups</option>
-                            <option v-for="cg in filterOptions.cell_groups" :key="cg.id" :value="String(cg.id)">{{ cg.name }}</option>
+                            <option
+                                v-for="cg in filterOptions.cell_groups"
+                                :key="cg.id"
+                                :value="String(cg.id)"
+                            >
+                                {{ cg.name }}
+                            </option>
                         </select>
                     </div>
 
                     <!-- Classification -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-muted-foreground">Classification</label>
+                        <label class="text-xs font-medium text-muted-foreground"
+                            >Classification</label
+                        >
                         <select
                             v-model="selectedClassification"
                             class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                         >
                             <option value="">All</option>
-                            <option v-for="c in filterOptions.classifications" :key="c.id" :value="String(c.id)">{{ c.name }}</option>
+                            <option
+                                v-for="c in filterOptions.classifications"
+                                :key="c.id"
+                                :value="String(c.id)"
+                            >
+                                {{ c.name }}
+                            </option>
                         </select>
                     </div>
 
                     <!-- Ministry -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-muted-foreground">Ministry</label>
+                        <label class="text-xs font-medium text-muted-foreground"
+                            >Ministry</label
+                        >
                         <select
                             v-model="selectedMinistry"
                             class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                         >
                             <option value="">All Ministries</option>
-                            <option v-for="m in filterOptions.ministries" :key="m.id" :value="String(m.id)">{{ m.name }}</option>
+                            <option
+                                v-for="m in filterOptions.ministries"
+                                :key="m.id"
+                                :value="String(m.id)"
+                            >
+                                {{ m.name }}
+                            </option>
                         </select>
                     </div>
 
                     <!-- Department -->
                     <div class="space-y-1.5">
-                        <label class="text-xs font-medium text-muted-foreground">Department</label>
+                        <label class="text-xs font-medium text-muted-foreground"
+                            >Department</label
+                        >
                         <select
                             v-model="selectedDepartment"
                             class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                         >
                             <option value="">All Departments</option>
-                            <option v-for="d in filterOptions.departments" :key="d.id" :value="String(d.id)">{{ d.name }}</option>
+                            <option
+                                v-for="d in filterOptions.departments"
+                                :key="d.id"
+                                :value="String(d.id)"
+                            >
+                                {{ d.name }}
+                            </option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Results Count -->
-                <div class="flex items-center justify-between text-sm text-muted-foreground">
+                <div
+                    class="flex items-center justify-between text-sm text-muted-foreground"
+                >
                     <span>
                         {{ filteredParticipants.length }}
-                        {{ filteredParticipants.length !== 1 ? 'people' : 'person' }}
+                        {{
+                            filteredParticipants.length !== 1
+                                ? 'people'
+                                : 'person'
+                        }}
                         <span v-if="hasActiveFilters"> found</span>
                     </span>
                 </div>

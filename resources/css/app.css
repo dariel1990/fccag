@@ -92,19 +92,19 @@
 
 /* FCCAG Brand Theme — Navy & Warm Yellow */
 :root {
-    --background: hsl(220, 25%, 97%);      /* soft navy-tinted white */
-    --foreground: hsl(220, 60%, 13%);      /* deep navy */
+    --background: hsl(220, 25%, 97%); /* soft navy-tinted white */
+    --foreground: hsl(220, 60%, 13%); /* deep navy */
     --card: hsl(0, 0%, 100%);
     --card-foreground: hsl(220, 60%, 13%);
     --popover: hsl(0, 0%, 100%);
     --popover-foreground: hsl(220, 60%, 13%);
-    --primary: hsl(220, 60%, 20%);         /* rich navy */
+    --primary: hsl(220, 60%, 20%); /* rich navy */
     --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(43, 92%, 53%);        /* warm golden yellow */
+    --secondary: hsl(43, 92%, 53%); /* warm golden yellow */
     --secondary-foreground: hsl(220, 60%, 13%);
-    --muted: hsl(220, 22%, 90%);           /* light navy-grey */
+    --muted: hsl(220, 22%, 90%); /* light navy-grey */
     --muted-foreground: hsl(220, 25%, 42%);
-    --accent: hsl(38, 80%, 44%);           /* warm amber — darker yellow hover */
+    --accent: hsl(38, 80%, 44%); /* warm amber — darker yellow hover */
     --accent-foreground: hsl(0, 0%, 98%);
     --destructive: hsl(0, 84.2%, 60.2%);
     --destructive-foreground: hsl(0, 0%, 98%);
@@ -131,15 +131,15 @@
 }
 
 .dark {
-    --background: hsl(220, 60%, 7%);       /* deep dark navy */
+    --background: hsl(220, 60%, 7%); /* deep dark navy */
     --foreground: hsl(0, 0%, 100%);
     --card: hsl(220, 55%, 11%);
     --card-foreground: hsl(0, 0%, 100%);
     --popover: hsl(220, 55%, 11%);
     --popover-foreground: hsl(0, 0%, 100%);
-    --primary: hsl(220, 55%, 50%);         /* lighter navy for dark bg */
+    --primary: hsl(220, 55%, 50%); /* lighter navy for dark bg */
     --primary-foreground: hsl(220, 60%, 7%);
-    --secondary: hsl(43, 92%, 48%);        /* warm yellow stays bold */
+    --secondary: hsl(43, 92%, 48%); /* warm yellow stays bold */
     --secondary-foreground: hsl(220, 60%, 7%);
     --muted: hsl(220, 40%, 16%);
     --muted-foreground: hsl(220, 22%, 62%);

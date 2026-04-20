@@ -63,7 +63,12 @@ watch(
                 };
             } else {
                 isEdit.value = false;
-                form.value = { name: '', description: '', photo: null, is_active: true };
+                form.value = {
+                    name: '',
+                    description: '',
+                    photo: null,
+                    is_active: true,
+                };
             }
         }
     },
@@ -125,26 +130,44 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-lg">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Department' : 'Add Department' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Department' : 'Add Department'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update department details' : 'Add a new church department' }}
+                    {{
+                        isEdit
+                            ? 'Update department details'
+                            : 'Add a new church department'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="dept_name">Name</Label>
-                    <Input id="dept_name" v-model="form.name" required placeholder="e.g. Youth Department" />
+                    <Input
+                        id="dept_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Youth Department"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="dept_description">Description</Label>
-                    <Input id="dept_description" v-model="form.description" placeholder="Brief description" />
+                    <Input
+                        id="dept_description"
+                        v-model="form.description"
+                        placeholder="Brief description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
-                <div v-if="isEdit && props.department?.photo_url" class="space-y-1.5">
+                <div
+                    v-if="isEdit && props.department?.photo_url"
+                    class="space-y-1.5"
+                >
                     <Label>Current Logo / Photo</Label>
                     <img
                         :src="props.department.photo_url"
@@ -154,12 +177,14 @@ function handleClose() {
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="dept_photo">{{ isEdit ? 'Replace Logo / Photo' : 'Logo / Photo' }}</Label>
+                    <Label for="dept_photo">{{
+                        isEdit ? 'Replace Logo / Photo' : 'Logo / Photo'
+                    }}</Label>
                     <input
                         id="dept_photo"
                         type="file"
                         accept="image/*"
-                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         @change="onPhotoChange"
                     />
                     <InputError :message="errors.photo" />
@@ -175,7 +200,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

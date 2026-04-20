@@ -19,7 +19,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-type Category = { id: number; name: string; weight: number; is_active: boolean };
+type Category = {
+    id: number;
+    name: string;
+    weight: number;
+    is_active: boolean;
+};
 
 const props = defineProps<{
     open: boolean;
@@ -95,16 +100,27 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-md">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Category' : 'Add Category' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Category' : 'Add Category'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update scoring category settings' : 'Add a new scoring category' }}
+                    {{
+                        isEdit
+                            ? 'Update scoring category settings'
+                            : 'Add a new scoring category'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="cat_name">Name</Label>
-                    <Input id="cat_name" v-model="form.name" required placeholder="e.g. Life Class" />
+                    <Input
+                        id="cat_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Life Class"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
@@ -120,7 +136,8 @@ function handleClose() {
                         required
                     />
                     <p class="text-xs text-muted-foreground">
-                        Current value: {{ (form.weight * 100).toFixed(2) }}% of the total score.
+                        Current value: {{ (form.weight * 100).toFixed(2) }}% of
+                        the total score.
                     </p>
                     <InputError :message="errors.weight" />
                 </div>
@@ -135,7 +152,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

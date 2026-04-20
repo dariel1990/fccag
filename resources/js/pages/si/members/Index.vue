@@ -2,7 +2,10 @@
 import { Head, router } from '@inertiajs/vue3';
 import { Plus, Pencil, Trash2, Eye } from 'lucide-vue-next';
 import { ref } from 'vue';
-import { index, destroy } from '@/actions/App/Http/Controllers/Si/SiMemberController';
+import {
+    index,
+    destroy,
+} from '@/actions/App/Http/Controllers/Si/SiMemberController';
 import Heading from '@/components/Heading.vue';
 import SiMemberFormDialog from '@/components/si/SiMemberFormDialog.vue';
 import SiMemberSheet from '@/components/si/SiMemberSheet.vue';
@@ -43,7 +46,9 @@ const props = defineProps<{
     caregivers: Caregiver[];
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'SI Members', href: index().url }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'SI Members', href: index().url },
+];
 
 const formDialogOpen = ref(false);
 const formMember = ref<Member | null>(null);
@@ -66,7 +71,11 @@ function openSheet(member: Member) {
 }
 
 function deleteMember(member: Member) {
-    if (confirm(`Are you sure you want to remove "${member.name}" from the SI program?`)) {
+    if (
+        confirm(
+            `Are you sure you want to remove "${member.name}" from the SI program?`,
+        )
+    ) {
         router.delete(destroy(member.id).url);
     }
 }
@@ -78,14 +87,19 @@ function deleteMember(member: Member) {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex items-center justify-between">
-                <Heading title="SI Members" description="Survival Intervention program participants" />
+                <Heading
+                    title="SI Members"
+                    description="Survival Intervention program participants"
+                />
                 <Button @click="openCreateDialog">
                     <Plus class="mr-2 h-4 w-4" />
                     Enroll Member
                 </Button>
             </div>
 
-            <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+            <div
+                class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+            >
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -103,26 +117,58 @@ function deleteMember(member: Member) {
                             No SI members enrolled yet.
                         </TableEmpty>
                         <TableRow v-for="member in members" :key="member.id">
-                            <TableCell class="font-medium">{{ member.name }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.ph_id || '—' }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.sex_label }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.caregiver?.name || '—' }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.enrolled_at }}</TableCell>
+                            <TableCell class="font-medium">{{
+                                member.name
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.ph_id || '—'
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.sex_label
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.caregiver?.name || '—'
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.enrolled_at
+                            }}</TableCell>
                             <TableCell class="text-center">
-                                <Badge :variant="member.status === 'active' ? 'default' : 'destructive'">
+                                <Badge
+                                    :variant="
+                                        member.status === 'active'
+                                            ? 'default'
+                                            : 'destructive'
+                                    "
+                                >
                                     {{ member.status_label }}
                                 </Badge>
                             </TableCell>
                             <TableCell class="text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <Button variant="ghost" size="icon" @click="openSheet(member)">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="openSheet(member)"
+                                    >
                                         <Eye class="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" @click="openEditDialog(member)">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="openEditDialog(member)"
+                                    >
                                         <Pencil class="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" @click="deleteMember(member)">
-                                        <Trash2 class="h-4 w-4 text-destructive" />
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        @click="deleteMember(member)"
+                                    >
+                                        <Trash2
+                                            class="h-4 w-4 text-destructive"
+                                        />
                                     </Button>
                                 </div>
                             </TableCell>

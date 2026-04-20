@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { Pencil, Check, X } from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
+import { Check, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import {
-    index,
-    edit,
-} from '@/actions/App/Http/Controllers/ParticipantController';
+import { index } from '@/actions/App/Http/Controllers/ParticipantController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -53,9 +49,7 @@ type Props = {
 const props = defineProps<Props>();
 
 const participantData = ref<Participant | null>(props.participant || null);
-const attendanceData = ref<AttendanceRecord[]>(
-    props.attendanceHistory || [],
-);
+const attendanceData = ref<AttendanceRecord[]>(props.attendanceHistory || []);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -81,20 +75,11 @@ const currentAttendance = computed(
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <!-- Header -->
-            <div
-                v-if="currentParticipant"
-                class="flex items-center justify-between"
-            >
+            <div v-if="currentParticipant">
                 <Heading
                     :title="currentParticipant.full_name"
                     description="Participant profile and attendance history"
                 />
-                <Button as-child>
-                    <Link :href="edit(currentParticipant.id).url">
-                        <Pencil class="mr-2 h-4 w-4" />
-                        Edit
-                    </Link>
-                </Button>
             </div>
 
             <!-- Profile Card -->

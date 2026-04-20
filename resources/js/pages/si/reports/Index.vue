@@ -55,7 +55,9 @@ watch([fromMonth, toMonth], ([from, to]) => {
     );
 });
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'SI Report', href: index().url }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'SI Report', href: index().url },
+];
 
 function formatPct(val: number) {
     return (val * 100).toFixed(2) + '%';
@@ -79,7 +81,10 @@ const colorClass: Record<string, string> = {
 };
 
 function assessmentClass(color: string): string {
-    return (colorClass[color] ?? colorClass['gray']) + ' rounded-full px-2 py-0.5 text-xs font-medium';
+    return (
+        (colorClass[color] ?? colorClass['gray']) +
+        ' rounded-full px-2 py-0.5 text-xs font-medium'
+    );
 }
 
 const reportDialogOpen = ref(false);
@@ -97,25 +102,31 @@ function openMemberReport(member: MemberReport) {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="flex items-start justify-between gap-4">
-                <Heading title="SI Attendance Report" description="Overall performance across all active members" />
+                <Heading
+                    title="SI Attendance Report"
+                    description="Overall performance across all active members"
+                />
                 <div class="flex shrink-0 items-center gap-2">
                     <div class="flex items-center gap-2 text-sm">
                         <label class="text-muted-foreground">From</label>
                         <input
                             v-model="fromMonth"
                             type="month"
-                            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:ring-1 focus:ring-ring focus:outline-none"
                         />
                         <label class="text-muted-foreground">To</label>
                         <input
                             v-model="toMonth"
                             type="month"
-                            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus:ring-1 focus:ring-ring focus:outline-none"
                         />
                         <button
                             v-if="fromMonth || toMonth"
                             class="text-xs text-muted-foreground underline hover:text-foreground"
-                            @click="fromMonth = ''; toMonth = ''"
+                            @click="
+                                fromMonth = '';
+                                toMonth = '';
+                            "
                         >
                             Clear
                         </button>
@@ -134,11 +145,15 @@ function openMemberReport(member: MemberReport) {
                     class="rounded-lg border border-sidebar-border/70 px-4 py-2 text-sm dark:border-sidebar-border"
                 >
                     <span class="font-medium">{{ cat.name }}</span>
-                    <span class="ml-2 text-muted-foreground">{{ (cat.weight * 100).toFixed(0) }}%</span>
+                    <span class="ml-2 text-muted-foreground"
+                        >{{ (cat.weight * 100).toFixed(0) }}%</span
+                    >
                 </div>
             </div>
 
-            <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+            <div
+                class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+            >
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -159,7 +174,10 @@ function openMemberReport(member: MemberReport) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableEmpty v-if="members.length === 0" :colspan="6 + categories.length">
+                        <TableEmpty
+                            v-if="members.length === 0"
+                            :colspan="6 + categories.length"
+                        >
                             No members enrolled yet.
                         </TableEmpty>
                         <TableRow
@@ -169,15 +187,27 @@ function openMemberReport(member: MemberReport) {
                             class="cursor-pointer"
                             @click="openMemberReport(member)"
                         >
-                            <TableCell class="text-center text-muted-foreground">{{ idx + 1 }}</TableCell>
-                            <TableCell class="font-medium">{{ member.name }}</TableCell>
-                            <TableCell class="text-muted-foreground">{{ member.caregiver || '—' }}</TableCell>
+                            <TableCell
+                                class="text-center text-muted-foreground"
+                                >{{ idx + 1 }}</TableCell
+                            >
+                            <TableCell class="font-medium">{{
+                                member.name
+                            }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                member.caregiver || '—'
+                            }}</TableCell>
                             <TableCell
                                 v-for="cat in categories"
                                 :key="cat.id"
                                 class="text-center text-sm"
                             >
-                                {{ formatPct((member.category_scores[cat.id] ?? 0) * cat.weight) }}
+                                {{
+                                    formatPct(
+                                        (member.category_scores[cat.id] ?? 0) *
+                                            cat.weight,
+                                    )
+                                }}
                             </TableCell>
                             <TableCell class="text-center font-semibold">
                                 {{ formatPct(member.overall_percentage) }}
@@ -186,7 +216,9 @@ function openMemberReport(member: MemberReport) {
                                 {{ stars(member.star_rating) }}
                             </TableCell>
                             <TableCell class="text-center">
-                                <div class="flex flex-wrap justify-center gap-1">
+                                <div
+                                    class="flex flex-wrap justify-center gap-1"
+                                >
                                     <span
                                         v-for="a in member.spiritual_assessments"
                                         :key="a.value"
@@ -197,7 +229,9 @@ function openMemberReport(member: MemberReport) {
                                 </div>
                             </TableCell>
                             <TableCell class="text-center">
-                                <div class="flex flex-wrap justify-center gap-1">
+                                <div
+                                    class="flex flex-wrap justify-center gap-1"
+                                >
                                     <span
                                         v-for="a in member.activity_assessments"
                                         :key="a.value"

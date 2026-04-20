@@ -160,9 +160,15 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Pastor' : 'Add Pastor' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Pastor' : 'Add Pastor'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update pastor details' : 'Add a new pastor or church leader' }}
+                    {{
+                        isEdit
+                            ? 'Update pastor details'
+                            : 'Add a new pastor or church leader'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
@@ -170,12 +176,22 @@ function handleClose() {
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <Label for="pas_first_name">First Name</Label>
-                        <Input id="pas_first_name" v-model="form.first_name" required placeholder="Juan" />
+                        <Input
+                            id="pas_first_name"
+                            v-model="form.first_name"
+                            required
+                            placeholder="Juan"
+                        />
                         <InputError :message="errors.first_name" />
                     </div>
                     <div class="space-y-1.5">
                         <Label for="pas_last_name">Last Name</Label>
-                        <Input id="pas_last_name" v-model="form.last_name" required placeholder="Dela Cruz" />
+                        <Input
+                            id="pas_last_name"
+                            v-model="form.last_name"
+                            required
+                            placeholder="Dela Cruz"
+                        />
                         <InputError :message="errors.last_name" />
                     </div>
                 </div>
@@ -183,42 +199,70 @@ function handleClose() {
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <Label for="pas_title">Title</Label>
-                        <Input id="pas_title" v-model="form.title" placeholder="e.g. Pastor, Rev." />
+                        <Input
+                            id="pas_title"
+                            v-model="form.title"
+                            placeholder="e.g. Pastor, Rev."
+                        />
                         <InputError :message="errors.title" />
                     </div>
                     <div class="space-y-1.5">
                         <Label for="pas_role">Role</Label>
-                        <Input id="pas_role" v-model="form.role" placeholder="e.g. Senior Pastor" />
+                        <Input
+                            id="pas_role"
+                            v-model="form.role"
+                            placeholder="e.g. Senior Pastor"
+                        />
                         <InputError :message="errors.role" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="pas_bio">Bio</Label>
-                    <Input id="pas_bio" v-model="form.bio" placeholder="Short biography" />
+                    <Input
+                        id="pas_bio"
+                        v-model="form.bio"
+                        placeholder="Short biography"
+                    />
                     <InputError :message="errors.bio" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <Label for="pas_contact">Contact Number</Label>
-                        <Input id="pas_contact" v-model="form.contact_number" placeholder="+63 900 000 0000" />
+                        <Input
+                            id="pas_contact"
+                            v-model="form.contact_number"
+                            placeholder="+63 900 000 0000"
+                        />
                         <InputError :message="errors.contact_number" />
                     </div>
                     <div class="space-y-1.5">
                         <Label for="pas_email">Email</Label>
-                        <Input id="pas_email" v-model="form.email" type="email" placeholder="pastor@church.org" />
+                        <Input
+                            id="pas_email"
+                            v-model="form.email"
+                            type="email"
+                            placeholder="pastor@church.org"
+                        />
                         <InputError :message="errors.email" />
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="pas_date_started">Date Started</Label>
-                    <Input id="pas_date_started" v-model="form.date_started" type="date" />
+                    <Input
+                        id="pas_date_started"
+                        v-model="form.date_started"
+                        type="date"
+                    />
                     <InputError :message="errors.date_started" />
                 </div>
 
-                <div v-if="isEdit && props.pastor?.photo_url" class="space-y-1.5">
+                <div
+                    v-if="isEdit && props.pastor?.photo_url"
+                    class="space-y-1.5"
+                >
                     <Label>Current Photo</Label>
                     <img
                         :src="props.pastor.photo_url"
@@ -228,12 +272,14 @@ function handleClose() {
                 </div>
 
                 <div class="space-y-1.5">
-                    <Label for="pas_photo">{{ isEdit ? 'Replace Photo' : 'Photo' }}</Label>
+                    <Label for="pas_photo">{{
+                        isEdit ? 'Replace Photo' : 'Photo'
+                    }}</Label>
                     <input
                         id="pas_photo"
                         type="file"
                         accept="image/*"
-                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         @change="onPhotoChange"
                     />
                     <InputError :message="errors.photo" />
@@ -249,7 +295,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

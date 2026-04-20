@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { Pencil, Plus, Trash2, UserCheck, Users } from 'lucide-vue-next';
+import { Plus, Trash2, UserCheck, Users } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
-import {
-    edit,
-    index,
-} from '@/actions/App/Http/Controllers/DepartmentController';
+import { index } from '@/actions/App/Http/Controllers/DepartmentController';
 import {
     store as storeOfficer,
     update as updateOfficer,
@@ -60,7 +57,12 @@ type Department = {
     members: Member[];
 };
 
-type Participant = { id: number; first_name: string; last_name: string; full_name?: string };
+type Participant = {
+    id: number;
+    first_name: string;
+    last_name: string;
+    full_name?: string;
+};
 
 type Props = {
     department: Department;
@@ -133,9 +135,15 @@ function closeOfficerDialog() {
 
 function submitOfficer() {
     if (editingOfficer.value) {
-        form.put(updateOfficer({ department: props.department.id, officer: editingOfficer.value.id }).url, {
-            onSuccess: () => closeOfficerDialog(),
-        });
+        form.put(
+            updateOfficer({
+                department: props.department.id,
+                officer: editingOfficer.value.id,
+            }).url,
+            {
+                onSuccess: () => closeOfficerDialog(),
+            },
+        );
     } else {
         form.post(storeOfficer(props.department.id).url, {
             onSuccess: () => closeOfficerDialog(),
@@ -154,12 +162,18 @@ function openDeleteDialog(officer: Officer) {
 
 function confirmDelete() {
     if (!deletingOfficer.value) return;
-    router.delete(destroyOfficer({ department: props.department.id, officer: deletingOfficer.value.id }).url, {
-        onSuccess: () => {
-            deleteDialogOpen.value = false;
-            deletingOfficer.value = null;
+    router.delete(
+        destroyOfficer({
+            department: props.department.id,
+            officer: deletingOfficer.value.id,
+        }).url,
+        {
+            onSuccess: () => {
+                deleteDialogOpen.value = false;
+                deletingOfficer.value = null;
+            },
         },
-    });
+    );
 }
 
 // ── Members ────────────────────────────────────────────────────────
@@ -171,7 +185,6 @@ const membersDialogOpen = ref(false);
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-4">
-
             <!-- Department Header -->
             <div class="flex items-start justify-between">
                 <div class="flex items-center gap-4">
@@ -185,22 +198,26 @@ const membersDialogOpen = ref(false);
                     <div>
                         <Heading
                             :title="props.department.name"
-                            :description="props.department.description ?? undefined"
+                            :description="
+                                props.department.description ?? undefined
+                            "
                         />
                         <Badge
                             class="mt-1"
-                            :variant="props.department.is_active ? 'default' : 'secondary'"
+                            :variant="
+                                props.department.is_active
+                                    ? 'default'
+                                    : 'secondary'
+                            "
                         >
-                            {{ props.department.is_active ? 'Active' : 'Inactive' }}
+                            {{
+                                props.department.is_active
+                                    ? 'Active'
+                                    : 'Inactive'
+                            }}
                         </Badge>
                     </div>
                 </div>
-                <Button variant="outline" as-child>
-                    <Link :href="edit(props.department.id).url">
-                        <Pencil class="mr-2 h-4 w-4" />
-                        Edit
-                    </Link>
-                </Button>
             </div>
 
             <!-- Current Officers -->
@@ -212,24 +229,36 @@ const membersDialogOpen = ref(false);
                         Add Officer
                     </Button>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <div
+                    class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead>Since</TableHead>
-                                <TableHead class="text-right">Actions</TableHead>
+                                <TableHead class="text-right"
+                                    >Actions</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableEmpty v-if="currentOfficers.length === 0" :colspan="4">
+                            <TableEmpty
+                                v-if="currentOfficers.length === 0"
+                                :colspan="4"
+                            >
                                 No current officers assigned.
                             </TableEmpty>
-                            <TableRow v-for="officer in currentOfficers" :key="officer.id">
+                            <TableRow
+                                v-for="officer in currentOfficers"
+                                :key="officer.id"
+                            >
                                 <TableCell class="font-medium">
                                     <div class="flex items-center gap-2">
-                                        <UserCheck class="h-4 w-4 text-primary" />
+                                        <UserCheck
+                                            class="h-4 w-4 text-primary"
+                                        />
                                         {{ officer.person.full_name }}
                                     </div>
                                 </TableCell>
@@ -238,7 +267,9 @@ const membersDialogOpen = ref(false);
                                     {{ formatDate(officer.started_at) }}
                                 </TableCell>
                                 <TableCell class="text-right">
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div
+                                        class="flex items-center justify-end gap-1"
+                                    >
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -251,7 +282,9 @@ const membersDialogOpen = ref(false);
                                             size="icon"
                                             @click="openDeleteDialog(officer)"
                                         >
-                                            <Trash2 class="h-4 w-4 text-destructive" />
+                                            <Trash2
+                                                class="h-4 w-4 text-destructive"
+                                            />
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -263,8 +296,12 @@ const membersDialogOpen = ref(false);
 
             <!-- Past Officers -->
             <div v-if="pastOfficers.length > 0">
-                <h2 class="mb-3 text-lg font-semibold text-muted-foreground">Past Officers</h2>
-                <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <h2 class="mb-3 text-lg font-semibold text-muted-foreground">
+                    Past Officers
+                </h2>
+                <div
+                    class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -272,23 +309,38 @@ const membersDialogOpen = ref(false);
                                 <TableHead>Role</TableHead>
                                 <TableHead>From</TableHead>
                                 <TableHead>Until</TableHead>
-                                <TableHead class="text-right">Actions</TableHead>
+                                <TableHead class="text-right"
+                                    >Actions</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="officer in pastOfficers" :key="officer.id">
-                                <TableCell class="font-medium text-muted-foreground">
+                            <TableRow
+                                v-for="officer in pastOfficers"
+                                :key="officer.id"
+                            >
+                                <TableCell
+                                    class="font-medium text-muted-foreground"
+                                >
                                     {{ officer.person.full_name }}
                                 </TableCell>
-                                <TableCell class="text-muted-foreground">{{ officer.role }}</TableCell>
+                                <TableCell class="text-muted-foreground">{{
+                                    officer.role
+                                }}</TableCell>
                                 <TableCell class="text-muted-foreground">
                                     {{ formatDate(officer.started_at) }}
                                 </TableCell>
                                 <TableCell class="text-muted-foreground">
-                                    {{ officer.ended_at ? formatDate(officer.ended_at) : '—' }}
+                                    {{
+                                        officer.ended_at
+                                            ? formatDate(officer.ended_at)
+                                            : '—'
+                                    }}
                                 </TableCell>
                                 <TableCell class="text-right">
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div
+                                        class="flex items-center justify-end gap-1"
+                                    >
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -301,7 +353,9 @@ const membersDialogOpen = ref(false);
                                             size="icon"
                                             @click="openDeleteDialog(officer)"
                                         >
-                                            <Trash2 class="h-4 w-4 text-destructive" />
+                                            <Trash2
+                                                class="h-4 w-4 text-destructive"
+                                            />
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -316,7 +370,9 @@ const membersDialogOpen = ref(false);
                 <div class="mb-3 flex items-center justify-between">
                     <h2 class="text-lg font-semibold">
                         Members
-                        <span class="ml-1 text-sm font-normal text-muted-foreground">
+                        <span
+                            class="ml-1 text-sm font-normal text-muted-foreground"
+                        >
                             ({{ props.department.members.length }})
                         </span>
                     </h2>
@@ -330,40 +386,76 @@ const membersDialogOpen = ref(false);
                         View All
                     </Button>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <div
+                    class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+                >
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead class="text-center">Status</TableHead>
+                                <TableHead class="text-center"
+                                    >Status</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableEmpty v-if="props.department.members.length === 0" :colspan="2">
+                            <TableEmpty
+                                v-if="props.department.members.length === 0"
+                                :colspan="2"
+                            >
                                 No members assigned to this department yet.
                             </TableEmpty>
                             <TableRow
-                                v-for="member in props.department.members.slice(0, 5)"
+                                v-for="member in props.department.members.slice(
+                                    0,
+                                    5,
+                                )"
                                 :key="member.id"
                             >
-                                <TableCell class="font-medium">{{ member.full_name }}</TableCell>
+                                <TableCell class="font-medium">{{
+                                    member.full_name
+                                }}</TableCell>
                                 <TableCell class="text-center">
-                                    <Badge :variant="member.is_active ? 'default' : 'secondary'">
-                                        {{ member.is_active ? 'Active' : 'Inactive' }}
+                                    <Badge
+                                        :variant="
+                                            member.is_active
+                                                ? 'default'
+                                                : 'secondary'
+                                        "
+                                    >
+                                        {{
+                                            member.is_active
+                                                ? 'Active'
+                                                : 'Inactive'
+                                        }}
                                     </Badge>
                                 </TableCell>
                             </TableRow>
-                            <TableRow v-if="props.department.members.length > 5" class="hover:bg-transparent">
-                                <TableCell :colspan="2" class="text-center text-sm text-muted-foreground">
-                                    and {{ props.department.members.length - 5 }} more…
-                                    <button class="ml-1 underline" @click="membersDialogOpen = true">View all</button>
+                            <TableRow
+                                v-if="props.department.members.length > 5"
+                                class="hover:bg-transparent"
+                            >
+                                <TableCell
+                                    :colspan="2"
+                                    class="text-center text-sm text-muted-foreground"
+                                >
+                                    and
+                                    {{
+                                        props.department.members.length - 5
+                                    }}
+                                    more…
+                                    <button
+                                        class="ml-1 underline"
+                                        @click="membersDialogOpen = true"
+                                    >
+                                        View all
+                                    </button>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
                 </div>
             </div>
-
         </div>
     </AppLayout>
 
@@ -377,7 +469,7 @@ const membersDialogOpen = ref(false);
                 <DialogDescription>
                     {{
                         editingOfficer
-                            ? 'Update the officer\'s role or tenure dates.'
+                            ? "Update the officer's role or tenure dates."
                             : 'Assign a person as an officer of this department.'
                     }}
                 </DialogDescription>
@@ -423,7 +515,10 @@ const membersDialogOpen = ref(false);
                     <div class="space-y-1.5">
                         <Label for="ended_at">
                             Ended
-                            <span class="text-muted-foreground text-xs font-normal">(leave blank if current)</span>
+                            <span
+                                class="text-xs font-normal text-muted-foreground"
+                                >(leave blank if current)</span
+                            >
                         </Label>
                         <Input
                             id="ended_at"
@@ -435,7 +530,11 @@ const membersDialogOpen = ref(false);
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeOfficerDialog">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="closeOfficerDialog"
+                    >
                         Cancel
                     </Button>
                     <Button type="submit" :disabled="form.processing">
@@ -452,14 +551,19 @@ const membersDialogOpen = ref(false);
             <DialogHeader>
                 <DialogTitle>Remove Officer</DialogTitle>
                 <DialogDescription>
-                    Remove <strong>{{ deletingOfficer?.person.full_name }}</strong>
-                    ({{ deletingOfficer?.role }}) from this department?
-                    This action cannot be undone.
+                    Remove
+                    <strong>{{ deletingOfficer?.person.full_name }}</strong> ({{
+                        deletingOfficer?.role
+                    }}) from this department? This action cannot be undone.
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-                <Button variant="outline" @click="deleteDialogOpen = false">Cancel</Button>
-                <Button variant="destructive" @click="confirmDelete">Remove</Button>
+                <Button variant="outline" @click="deleteDialogOpen = false"
+                    >Cancel</Button
+                >
+                <Button variant="destructive" @click="confirmDelete"
+                    >Remove</Button
+                >
             </DialogFooter>
         </DialogContent>
     </Dialog>
@@ -469,7 +573,9 @@ const membersDialogOpen = ref(false);
         <DialogContent class="max-h-[80vh] max-w-lg overflow-y-auto">
             <DialogHeader>
                 <DialogTitle>
-                    {{ props.department.name }} — Members ({{ props.department.members.length }})
+                    {{ props.department.name }} — Members ({{
+                        props.department.members.length
+                    }})
                 </DialogTitle>
                 <DialogDescription>
                     All people assigned to this department.
@@ -489,11 +595,23 @@ const membersDialogOpen = ref(false);
                             v-for="(member, idx) in props.department.members"
                             :key="member.id"
                         >
-                            <TableCell class="text-muted-foreground">{{ idx + 1 }}</TableCell>
-                            <TableCell class="font-medium">{{ member.full_name }}</TableCell>
+                            <TableCell class="text-muted-foreground">{{
+                                idx + 1
+                            }}</TableCell>
+                            <TableCell class="font-medium">{{
+                                member.full_name
+                            }}</TableCell>
                             <TableCell class="text-center">
-                                <Badge :variant="member.is_active ? 'default' : 'secondary'">
-                                    {{ member.is_active ? 'Active' : 'Inactive' }}
+                                <Badge
+                                    :variant="
+                                        member.is_active
+                                            ? 'default'
+                                            : 'secondary'
+                                    "
+                                >
+                                    {{
+                                        member.is_active ? 'Active' : 'Inactive'
+                                    }}
                                 </Badge>
                             </TableCell>
                         </TableRow>

@@ -148,7 +148,9 @@ function handleDeleteConfirm() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="openDeleteDialog(classification)"
+                                        @click="
+                                            openDeleteDialog(classification)
+                                        "
                                     >
                                         <Trash2
                                             class="h-4 w-4 text-destructive"

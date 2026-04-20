@@ -193,14 +193,21 @@ const hasAnySiPermission = computed(
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-4">
-
             <!-- Empty state -->
             <div
-                v-if="!can('participants', 'read') && !can('activities', 'read') && !can('activity_types', 'read') && !hasAnySiPermission"
+                v-if="
+                    !can('participants', 'read') &&
+                    !can('activities', 'read') &&
+                    !can('activity_types', 'read') &&
+                    !hasAnySiPermission
+                "
                 class="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-sidebar-border/70 p-12 text-center dark:border-sidebar-border"
             >
                 <p class="text-lg font-semibold">No data available</p>
-                <p class="text-sm text-muted-foreground">You don't have permission to view any dashboard data. Contact your superadmin to request access.</p>
+                <p class="text-sm text-muted-foreground">
+                    You don't have permission to view any dashboard data.
+                    Contact your superadmin to request access.
+                </p>
             </div>
 
             <!-- Stats Cards -->
@@ -212,8 +219,12 @@ const hasAnySiPermission = computed(
                     v-if="can('participants', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <p class="text-sm text-muted-foreground">Total People of God</p>
-                    <p class="mt-2 text-3xl font-bold">{{ stats?.total_participants }}</p>
+                    <p class="text-sm text-muted-foreground">
+                        Total People of God
+                    </p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ stats?.total_participants }}
+                    </p>
                 </div>
                 <div
                     v-if="can('activities', 'read')"
@@ -222,14 +233,20 @@ const hasAnySiPermission = computed(
                     <p class="text-sm text-muted-foreground">
                         Activities This Quarter ({{ currentQuarter }})
                     </p>
-                    <p class="mt-2 text-3xl font-bold">{{ stats?.total_activities_this_quarter }}</p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ stats?.total_activities_this_quarter }}
+                    </p>
                 </div>
                 <div
                     v-if="can('activities', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <p class="text-sm text-muted-foreground">Activities This Month</p>
-                    <p class="mt-2 text-3xl font-bold">{{ stats?.activities_recorded_this_month }}</p>
+                    <p class="text-sm text-muted-foreground">
+                        Activities This Month
+                    </p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ stats?.activities_recorded_this_month }}
+                    </p>
                 </div>
             </div>
 
@@ -242,7 +259,9 @@ const hasAnySiPermission = computed(
                     v-if="can('participants', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <h3 class="mb-4 text-lg font-semibold">Spiritual Level Distribution</h3>
+                    <h3 class="mb-4 text-lg font-semibold">
+                        Spiritual Level Distribution
+                    </h3>
                     <div class="h-64">
                         <Pie :data="pieChartData" :options="pieChartOptions" />
                     </div>
@@ -252,9 +271,14 @@ const hasAnySiPermission = computed(
                     v-if="can('activities', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <h3 class="mb-4 text-lg font-semibold">Attendance Trend (Last 6 Months)</h3>
+                    <h3 class="mb-4 text-lg font-semibold">
+                        Attendance Trend (Last 6 Months)
+                    </h3>
                     <div class="h-64">
-                        <Line :data="lineChartData" :options="lineChartOptions" />
+                        <Line
+                            :data="lineChartData"
+                            :options="lineChartOptions"
+                        />
                     </div>
                 </div>
             </div>
@@ -264,7 +288,9 @@ const hasAnySiPermission = computed(
                 v-if="can('activity_types', 'read')"
                 class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
             >
-                <h3 class="mb-4 text-lg font-semibold">Activity Types This Quarter</h3>
+                <h3 class="mb-4 text-lg font-semibold">
+                    Activity Types This Quarter
+                </h3>
                 <div class="h-64">
                     <Bar :data="barChartData" :options="barChartOptions" />
                 </div>
@@ -277,7 +303,9 @@ const hasAnySiPermission = computed(
             >
                 <div class="p-6 pb-0">
                     <h3 class="text-lg font-semibold">Recent Activities</h3>
-                    <p class="text-sm text-muted-foreground">Latest activity sessions with attendance</p>
+                    <p class="text-sm text-muted-foreground">
+                        Latest activity sessions with attendance
+                    </p>
                 </div>
                 <div class="p-2">
                     <Table>
@@ -286,7 +314,9 @@ const hasAnySiPermission = computed(
                                 <TableHead>Date</TableHead>
                                 <TableHead>Activity</TableHead>
                                 <TableHead>Type</TableHead>
-                                <TableHead class="text-center">Attendance</TableHead>
+                                <TableHead class="text-center"
+                                    >Attendance</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -294,7 +324,9 @@ const hasAnySiPermission = computed(
                                 v-for="activity in recentActivities"
                                 :key="activity.id"
                             >
-                                <TableCell>{{ activity.activity_date }}</TableCell>
+                                <TableCell>{{
+                                    activity.activity_date
+                                }}</TableCell>
                                 <TableCell class="font-medium">
                                     <Link
                                         :href="showActivity(activity.id).url"
@@ -303,12 +335,24 @@ const hasAnySiPermission = computed(
                                         {{ activity.title }}
                                     </Link>
                                 </TableCell>
-                                <TableCell class="text-muted-foreground">{{ activity.activity_type }}</TableCell>
+                                <TableCell class="text-muted-foreground">{{
+                                    activity.activity_type
+                                }}</TableCell>
                                 <TableCell class="text-center">
-                                    <span v-if="activity.attendance_count > 0" class="text-sm">
-                                        {{ activity.present_count }}/{{ activity.attendance_count }} present
+                                    <span
+                                        v-if="activity.attendance_count > 0"
+                                        class="text-sm"
+                                    >
+                                        {{ activity.present_count }}/{{
+                                            activity.attendance_count
+                                        }}
+                                        present
                                     </span>
-                                    <span v-else class="text-sm text-muted-foreground">Not recorded</span>
+                                    <span
+                                        v-else
+                                        class="text-sm text-muted-foreground"
+                                        >Not recorded</span
+                                    >
                                 </TableCell>
                             </TableRow>
                         </TableBody>
@@ -318,32 +362,50 @@ const hasAnySiPermission = computed(
             <!-- SI Section Divider -->
             <div v-if="hasAnySiPermission" class="flex items-center gap-3">
                 <div class="h-px flex-1 bg-border" />
-                <span class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">SI Program</span>
+                <span
+                    class="text-sm font-semibold tracking-wider text-muted-foreground uppercase"
+                    >SI Program</span
+                >
                 <div class="h-px flex-1 bg-border" />
             </div>
 
             <!-- SI Stats Cards -->
-            <div v-if="hasAnySiPermission" class="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div
+                v-if="hasAnySiPermission"
+                class="grid auto-rows-min gap-4 md:grid-cols-3"
+            >
                 <div
                     v-if="can('si_members', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <p class="text-sm text-muted-foreground">Active SI Members</p>
-                    <p class="mt-2 text-3xl font-bold">{{ siStats?.total_active_members }}</p>
+                    <p class="text-sm text-muted-foreground">
+                        Active SI Members
+                    </p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ siStats?.total_active_members }}
+                    </p>
                 </div>
                 <div
                     v-if="can('si_activities', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <p class="text-sm text-muted-foreground">SI Activities This Month</p>
-                    <p class="mt-2 text-3xl font-bold">{{ siStats?.total_activities_this_month }}</p>
+                    <p class="text-sm text-muted-foreground">
+                        SI Activities This Month
+                    </p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ siStats?.total_activities_this_month }}
+                    </p>
                 </div>
                 <div
                     v-if="can('si_activities', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <p class="text-sm text-muted-foreground">SI Attendance Rate This Month</p>
-                    <p class="mt-2 text-3xl font-bold">{{ siStats?.attendance_rate_this_month }}%</p>
+                    <p class="text-sm text-muted-foreground">
+                        SI Attendance Rate This Month
+                    </p>
+                    <p class="mt-2 text-3xl font-bold">
+                        {{ siStats?.attendance_rate_this_month }}%
+                    </p>
                 </div>
             </div>
 
@@ -353,9 +415,14 @@ const hasAnySiPermission = computed(
                     v-if="can('si_members', 'read')"
                     class="rounded-xl border border-sidebar-border/70 p-6 dark:border-sidebar-border"
                 >
-                    <h3 class="mb-4 text-lg font-semibold">SI Member Status Breakdown</h3>
+                    <h3 class="mb-4 text-lg font-semibold">
+                        SI Member Status Breakdown
+                    </h3>
                     <div class="h-64">
-                        <Pie :data="siMemberStatusChartData" :options="pieChartOptions" />
+                        <Pie
+                            :data="siMemberStatusChartData"
+                            :options="pieChartOptions"
+                        />
                     </div>
                 </div>
 
@@ -365,8 +432,12 @@ const hasAnySiPermission = computed(
                     class="rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
                 >
                     <div class="p-6 pb-0">
-                        <h3 class="text-lg font-semibold">Recent SI Activities</h3>
-                        <p class="text-sm text-muted-foreground">Latest SI sessions with attendance</p>
+                        <h3 class="text-lg font-semibold">
+                            Recent SI Activities
+                        </h3>
+                        <p class="text-sm text-muted-foreground">
+                            Latest SI sessions with attendance
+                        </p>
                     </div>
                     <div class="p-2">
                         <Table>
@@ -375,7 +446,9 @@ const hasAnySiPermission = computed(
                                     <TableHead>Date</TableHead>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Category</TableHead>
-                                    <TableHead class="text-center">Attendance</TableHead>
+                                    <TableHead class="text-center"
+                                        >Attendance</TableHead
+                                    >
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -383,21 +456,37 @@ const hasAnySiPermission = computed(
                                     v-for="activity in siRecentActivities"
                                     :key="activity.id"
                                 >
-                                    <TableCell>{{ activity.conducted_at }}</TableCell>
+                                    <TableCell>{{
+                                        activity.conducted_at
+                                    }}</TableCell>
                                     <TableCell class="font-medium">
                                         <Link
-                                            :href="showSiActivity(activity.id).url"
+                                            :href="
+                                                showSiActivity(activity.id).url
+                                            "
                                             class="hover:underline"
                                         >
                                             {{ activity.title }}
                                         </Link>
                                     </TableCell>
-                                    <TableCell class="text-muted-foreground">{{ activity.category }}</TableCell>
+                                    <TableCell class="text-muted-foreground">{{
+                                        activity.category
+                                    }}</TableCell>
                                     <TableCell class="text-center">
-                                        <span v-if="activity.total_count > 0" class="text-sm">
-                                            {{ activity.present_count }}/{{ activity.total_count }} present
+                                        <span
+                                            v-if="activity.total_count > 0"
+                                            class="text-sm"
+                                        >
+                                            {{ activity.present_count }}/{{
+                                                activity.total_count
+                                            }}
+                                            present
                                         </span>
-                                        <span v-else class="text-sm text-muted-foreground">Not recorded</span>
+                                        <span
+                                            v-else
+                                            class="text-sm text-muted-foreground"
+                                            >Not recorded</span
+                                        >
                                     </TableCell>
                                 </TableRow>
                             </TableBody>

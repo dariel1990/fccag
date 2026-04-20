@@ -84,7 +84,11 @@ function submit() {
     };
 
     if (isEdit.value) {
-        router.put(updateClassification(props.classification!.id).url, form.value, options);
+        router.put(
+            updateClassification(props.classification!.id).url,
+            form.value,
+            options,
+        );
     } else {
         router.post(storeClassification().url, form.value, options);
     }
@@ -99,22 +103,39 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-md">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Classification' : 'Add Classification' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Classification' : 'Add Classification'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update classification details' : 'Add a new member classification' }}
+                    {{
+                        isEdit
+                            ? 'Update classification details'
+                            : 'Add a new member classification'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="cl_name">Name</Label>
-                    <Input id="cl_name" v-model="form.name" required placeholder="e.g. Regular Member" />
+                    <Input
+                        id="cl_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Regular Member"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="cl_code">Code</Label>
-                    <Input id="cl_code" v-model="form.code" required placeholder="e.g. RM" class="uppercase" />
+                    <Input
+                        id="cl_code"
+                        v-model="form.code"
+                        required
+                        placeholder="e.g. RM"
+                        class="uppercase"
+                    />
                     <p class="text-xs text-muted-foreground">
                         Use uppercase letters for consistency.
                     </p>
@@ -123,12 +144,18 @@ function handleClose() {
 
                 <div class="space-y-1.5">
                     <Label for="cl_description">Description</Label>
-                    <Input id="cl_description" v-model="form.description" placeholder="Brief description" />
+                    <Input
+                        id="cl_description"
+                        v-model="form.description"
+                        placeholder="Brief description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

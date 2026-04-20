@@ -100,22 +100,37 @@ function handleClose() {
     <Dialog :open="open" @update:open="handleClose">
         <DialogContent class="max-w-md">
             <DialogHeader>
-                <DialogTitle>{{ isEdit ? 'Edit Ministry' : 'Add Ministry' }}</DialogTitle>
+                <DialogTitle>{{
+                    isEdit ? 'Edit Ministry' : 'Add Ministry'
+                }}</DialogTitle>
                 <DialogDescription>
-                    {{ isEdit ? 'Update ministry details' : 'Add a new church ministry' }}
+                    {{
+                        isEdit
+                            ? 'Update ministry details'
+                            : 'Add a new church ministry'
+                    }}
                 </DialogDescription>
             </DialogHeader>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <Label for="min_name">Name</Label>
-                    <Input id="min_name" v-model="form.name" required placeholder="e.g. Worship Ministry" />
+                    <Input
+                        id="min_name"
+                        v-model="form.name"
+                        required
+                        placeholder="e.g. Worship Ministry"
+                    />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="space-y-1.5">
                     <Label for="min_description">Description</Label>
-                    <Input id="min_description" v-model="form.description" placeholder="Brief description" />
+                    <Input
+                        id="min_description"
+                        v-model="form.description"
+                        placeholder="Brief description"
+                    />
                     <InputError :message="errors.description" />
                 </div>
 
@@ -129,7 +144,9 @@ function handleClose() {
                 </div>
 
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="handleClose">Cancel</Button>
+                    <Button type="button" variant="outline" @click="handleClose"
+                        >Cancel</Button
+                    >
                     <Button type="submit" :disabled="isProcessing">
                         {{ isEdit ? 'Save Changes' : 'Create' }}
                     </Button>

@@ -73,11 +73,11 @@ defineProps<{
                 </p>
                 <div class="mx-auto mb-8 h-0.5 w-16 bg-secondary"></div>
                 <p
-                    class="max-w-xs text-sm italic leading-relaxed text-white/60"
+                    class="max-w-xs text-sm leading-relaxed text-white/60 italic"
                 >
                     "For I know the plans I have for you, declares the Lord,
                     plans to prosper you and not to harm you."<br />
-                    <span class="text-secondary font-semibold not-italic"
+                    <span class="font-semibold text-secondary not-italic"
                         >— Jeremiah 29:11</span
                     >
                 </p>
@@ -123,9 +123,7 @@ defineProps<{
 
                 <slot />
 
-                <div
-                    class="mt-8 border-t border-primary/20 pt-6 text-center"
-                >
+                <div class="mt-8 border-t border-primary/20 pt-6 text-center">
                     <Link
                         href="/"
                         class="text-xs text-primary/60 transition-colors hover:text-primary"
