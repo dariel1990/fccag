@@ -3,15 +3,17 @@ type Props = {
     title: string;
     description?: string;
     variant?: 'default' | 'small';
+    noMargin?: boolean;
 };
 
 withDefaults(defineProps<Props>(), {
     variant: 'default',
+    noMargin: false,
 });
 </script>
 
 <template>
-    <header :class="variant === 'small' ? '' : 'mb-8 space-y-0.5'">
+    <header :class="variant === 'small' || noMargin ? 'space-y-0.5' : 'mb-8 space-y-0.5'">
         <h2
             :class="
                 variant === 'small'

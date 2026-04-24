@@ -7,9 +7,11 @@ use App\Enums\PermissionAction;
 use App\Models\Activity;
 use App\Models\Attendance;
 use App\Models\Participant;
+use App\Models\Setlist;
 use App\Models\SiActivity;
 use App\Models\SiAttendance;
 use App\Models\SiMember;
+use App\Models\Song;
 use App\Services\SpiritualLevelService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,6 +34,8 @@ class DashboardController extends Controller
         $canViewActivityTypes = $user->hasPermission(Module::ActivityTypes, PermissionAction::Read);
         $canViewSiMembers = $user->hasPermission(Module::SiMembers, PermissionAction::Read);
         $canViewSiActivities = $user->hasPermission(Module::SiActivities, PermissionAction::Read);
+        $canViewSongs = $user->hasPermission(Module::Songs, PermissionAction::Read);
+        $canViewSetlists = $user->hasPermission(Module::Setlists, PermissionAction::Read);
 
         $quarterDates = $this->spiritualLevelService->getQuarterDates($currentYear, $currentQuarter);
 
@@ -106,6 +110,37 @@ class DashboardController extends Controller
                 : null,
             'siMemberStatusBreakdown' => $canViewSiMembers
                 ? $this->getSiMemberStatusBreakdown()
+                : null,
+
+            // Music stats
+            'musicStats' => ($canViewSongs || $canViewSetlists)
+                ? [
+                    'total_songs' => $canViewSongs
+                        ? Song::where('is_active', true)->count()
+                        : null,
+                    'total_setlists' => $canViewSetlists
+                        ? Setlist::count()
+                        : null,
+                    'upcoming_setlists' => $canViewSetlists
+                        ? Setlist::where('service_date', '>=', now()->toDateString())
+                            ->where('status', '!=', 'archived')
+                            ->count()
+                        : null,
+                ]
+                : null,
+            'recentSetlists' => $canViewSetlists
+                ? Setlist::withCount('songs')
+                    ->latest('service_date')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn ($setlist) => [
+                        'id' => $setlist->id,
+                        'title' => $setlist->title,
+                        'service_date' => $setlist->service_date->format('Y-m-d'),
+                        'status' => $setlist->status,
+                        'songs_count' => $setlist->songs_count,
+                        'theme' => $setlist->theme,
+                    ])
                 : null,
         ]);
     }

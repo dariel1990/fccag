@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             ActivityTypeSeeder::class,
             ParticipantSeeder::class,
             ActivitySeeder::class,
+            MusicSeeder::class,
         ]);
     }
 }

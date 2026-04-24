@@ -20,8 +20,8 @@ defineProps<{
 
 <template>
     <AuthBase
-        title="Admin Portal"
-        description="Sign in to access the FCCAG management system"
+        title="Member Portal"
+        description="Sign in to access"
     >
         <Head title="Admin Login" />
 

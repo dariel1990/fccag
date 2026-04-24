@@ -8,6 +8,8 @@ import {
     ChartBar,
     LayoutGrid,
     Layers,
+    ListMusic,
+    Music,
     Newspaper,
     Tags,
     Users,
@@ -28,6 +30,8 @@ import { index as pastorsIndex } from '@/actions/App/Http/Controllers/PastorCont
 import { index as blogIndex } from '@/actions/App/Http/Controllers/PostController';
 import { quarterlyReport } from '@/actions/App/Http/Controllers/ReportController';
 import { index as siActivityCategoriesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityCategoryController';
+import { index as songsIndex } from '@/actions/App/Http/Controllers/Music/SongController';
+import { index as setlistsIndex } from '@/actions/App/Http/Controllers/Music/SetlistController';
 import { index as siActivitiesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityController';
 import { index as siMembersIndex } from '@/actions/App/Http/Controllers/Si/SiMemberController';
 import { index as siReportsIndex } from '@/actions/App/Http/Controllers/Si/SiReportController';
@@ -167,6 +171,23 @@ const allNavGroups: NavGroupWithPermissions[] = [
                 href: siReportsIndex(),
                 icon: ClipboardList,
                 permission: 'si_activities',
+            },
+        ],
+    },
+    {
+        label: 'Music',
+        items: [
+            {
+                title: 'Songs',
+                href: songsIndex().url,
+                icon: Music,
+                permission: 'songs',
+            },
+            {
+                title: 'Setlists',
+                href: setlistsIndex().url,
+                icon: ListMusic,
+                permission: 'setlists',
             },
         ],
     },

@@ -1,13 +1,9 @@
-<script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
-</script>
-
 <template>
-    <div
-        class="flex aspect-square size-8 items-center justify-center rounded-full bg-[#EAC340] text-[#346289]"
-    >
-        <AppLogoIcon class="size-5 fill-current" />
-    </div>
+    <img
+        src="/images/fccag-logo.png"
+        alt="FCCAG Logo"
+        class="size-8 object-contain"
+    />
     <div class="ml-1 grid flex-1 text-left text-sm">
         <span
             class="mb-0.5 truncate text-xs leading-tight font-bold tracking-widest uppercase"

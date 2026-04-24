@@ -9,6 +9,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DepartmentOfficerController;
 use App\Http\Controllers\MinistryController;
+use App\Http\Controllers\Music\SetlistController;
+use App\Http\Controllers\Music\SetlistSongController;
+use App\Http\Controllers\Music\SongController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PastorController;
 use App\Http\Controllers\PostController;
@@ -22,15 +25,13 @@ use App\Http\Controllers\Si\SiReportController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Public frontend disabled — redirect to login
-Route::get('/', fn () => redirect()->route('login'))->name('home');
-
-// Route::get('/about', fn () => Inertia::render('About'))->name('public.about');
-// Route::get('/history', fn () => Inertia::render('History'))->name('public.history');
-// Route::get('/programs', fn () => Inertia::render('Programs'))->name('public.programs');
-// Route::get('/news', fn () => Inertia::render('News'))->name('public.news');
-// Route::get('/blog', [PublicPostController::class, 'index'])->name('blog.public.index');
-// Route::get('/blog/{post:slug}', [PublicPostController::class, 'show'])->name('blog.public.show');
+Route::get('/', fn () => Inertia::render('Home'))->name('home');
+Route::get('/about', fn () => Inertia::render('About'))->name('public.about');
+Route::get('/history', fn () => Inertia::render('History'))->name('public.history');
+Route::get('/programs', fn () => Inertia::render('Programs'))->name('public.programs');
+Route::get('/news', fn () => Inertia::render('News'))->name('public.news');
+Route::get('/blog', [PublicPostController::class, 'index'])->name('blog.public.index');
+Route::get('/blog/{post:slug}', [PublicPostController::class, 'show'])->name('blog.public.show');
 
 // All admin routes require authentication
 Route::middleware(['auth:sanctum,web', 'verified'])->group(function (): void {
@@ -93,6 +94,22 @@ Route::middleware(['auth:sanctum,web', 'verified'])->group(function (): void {
             Route::resource('activities', SiActivityController::class)->names('activities');
             Route::post('activities/{siActivity}/attendance', [SiAttendanceController::class, 'store'])->name('attendance.store');
             Route::get('reports', [SiReportController::class, 'index'])->name('reports.index');
+        });
+    });
+
+    // Music module
+    Route::prefix('music')->name('music.')->group(function (): void {
+        Route::middleware('permission:songs')->group(function (): void {
+            Route::resource('songs', SongController::class)->except(['create', 'edit']);
+        });
+
+        Route::middleware('permission:setlists')->group(function (): void {
+            Route::resource('setlists', SetlistController::class)->except(['create', 'edit']);
+            Route::get('setlists/{setlist}/live', [SetlistController::class, 'live'])->name('setlists.live');
+            Route::post('setlists/{setlist}/songs', [SetlistSongController::class, 'store'])->name('setlist-songs.store');
+            Route::patch('setlists/{setlist}/songs/{song}', [SetlistSongController::class, 'update'])->name('setlist-songs.update');
+            Route::delete('setlists/{setlist}/songs/{song}', [SetlistSongController::class, 'destroy'])->name('setlist-songs.destroy');
+            Route::patch('setlists/{setlist}/reorder', [SetlistSongController::class, 'reorder'])->name('setlist-songs.reorder');
         });
     });
 

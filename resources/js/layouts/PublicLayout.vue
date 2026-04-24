@@ -28,19 +28,11 @@ const navLinks = [
                 <div class="flex h-16 items-center justify-between">
                     <!-- Logo -->
                     <Link href="/" class="group flex items-center gap-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary shadow-md transition-colors group-hover:bg-accent"
-                        >
-                            <svg
-                                viewBox="0 0 24 24"
-                                class="h-6 w-6 text-secondary-foreground"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M12 2L11 8H5l5 4-2 7 4-3 4 3-2-7 5-4h-6L12 2z"
-                                />
-                            </svg>
-                        </div>
+                        <img
+                            src="/images/fccag-logo.png"
+                            alt="FCCAG Logo"
+                            class="h-10 w-10 object-contain drop-shadow-md"
+                        />
                         <div class="leading-tight">
                             <p
                                 class="text-sm font-bold tracking-widest text-secondary uppercase"

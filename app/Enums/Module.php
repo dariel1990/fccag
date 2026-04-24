@@ -16,4 +16,6 @@ enum Module: string
     case SiMembers = 'si_members';
     case SiActivities = 'si_activities';
     case Posts = 'posts';
+    case Songs = 'songs';
+    case Setlists = 'setlists';
 }
