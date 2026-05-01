@@ -33,6 +33,10 @@ Route::get('/news', fn () => Inertia::render('News'))->name('public.news');
 Route::get('/blog', [PublicPostController::class, 'index'])->name('blog.public.index');
 Route::get('/blog/{post:slug}', [PublicPostController::class, 'show'])->name('blog.public.show');
 
+// Public share link for setlist Live view (token-protected, no auth required)
+Route::get('share/setlists/{token}/live', [SetlistController::class, 'publicLive'])
+    ->name('setlists.public.live');
+
 // All admin routes require authentication
 Route::middleware(['auth:sanctum,web', 'verified'])->group(function (): void {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -106,6 +110,8 @@ Route::middleware(['auth:sanctum,web', 'verified'])->group(function (): void {
         Route::middleware('permission:setlists')->group(function (): void {
             Route::resource('setlists', SetlistController::class)->except(['create', 'edit']);
             Route::get('setlists/{setlist}/live', [SetlistController::class, 'live'])->name('setlists.live');
+            Route::post('setlists/{setlist}/share', [SetlistController::class, 'enableShare'])->name('setlists.share.enable');
+            Route::delete('setlists/{setlist}/share', [SetlistController::class, 'disableShare'])->name('setlists.share.disable');
             Route::post('setlists/{setlist}/songs', [SetlistSongController::class, 'store'])->name('setlist-songs.store');
             Route::patch('setlists/{setlist}/songs/{song}', [SetlistSongController::class, 'update'])->name('setlist-songs.update');
             Route::delete('setlists/{setlist}/songs/{song}', [SetlistSongController::class, 'destroy'])->name('setlist-songs.destroy');

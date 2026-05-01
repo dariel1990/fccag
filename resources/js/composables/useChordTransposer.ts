@@ -25,32 +25,46 @@ function transposeNote(note: string, semitones: number, targetKey: string): stri
     return result;
 }
 
+// Strip surrounding parens from a chord token, returning [innerChord, leftParen, rightParen]
+function stripParens(chord: string): [string, string, string] {
+    const m = chord.match(/^(\()?(.*?)(\))?$/);
+    if (!m) { return [chord, '', '']; }
+    const left = m[1] ?? '';
+    const right = m[3] ?? '';
+    return [m[2], left, right];
+}
+
 function transposeChord(chord: string, semitones: number, targetKey = ''): string {
-    const match = chord.match(/^([A-G][b#]?)(.*)$/);
+    const [inner, left, right] = stripParens(chord);
+    const match = inner.match(/^([A-G][b#]?)(.*)$/);
     if (!match) { return chord; }
     const [, root, suffix] = match;
     // Handle slash chords like G/B
     const slashIdx = suffix.lastIndexOf('/');
     if (slashIdx !== -1) {
         const bassNote = transposeNote(suffix.slice(slashIdx + 1), semitones, targetKey);
-        return transposeNote(root, semitones, targetKey) + suffix.slice(0, slashIdx) + '/' + bassNote;
+        return left + transposeNote(root, semitones, targetKey) + suffix.slice(0, slashIdx) + '/' + bassNote + right;
     }
-    return transposeNote(root, semitones, targetKey) + suffix;
+    return left + transposeNote(root, semitones, targetKey) + suffix + right;
 }
 
-// Detects whether a token looks like a chord name (e.g. G, Am, F#m7, Bb/D)
+// Detects whether a token looks like a chord name (e.g. G, Am, F#m7, Bb/D, optionally wrapped in parens)
 function isChordToken(token: string): boolean {
-    return /^[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?$/.test(token);
+    return /^\(?[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?\)?$/.test(token);
 }
 
-// Detects whether an entire line is a chord line (all space-separated tokens are chords)
+// Separator tokens commonly used between chords (dashes, bar lines)
+const SEPARATOR_TOKEN = /^[-–—|]+$/;
+
+// Detects whether an entire line is a chord line (all space-separated tokens are chords or separators)
 export function isChordLine(line: string): boolean {
     const trimmed = line.trim();
     if (!trimmed) { return false; }
-    // Must start with a chord root character (possibly after spaces)
-    if (!/^[A-G]/.test(trimmed)) { return false; }
+    // Must start with a chord root character or an opening paren (possibly after spaces)
+    if (!/^[(A-G]/.test(trimmed)) { return false; }
     const tokens = trimmed.split(/\s+/).filter(Boolean);
-    return tokens.length > 0 && tokens.every(isChordToken);
+    const chordTokens = tokens.filter((t) => !SEPARATOR_TOKEN.test(t));
+    return chordTokens.length > 0 && chordTokens.every(isChordToken);
 }
 
 // Detects whether text uses the old inline [Chord]lyrics format
@@ -62,7 +76,7 @@ export function hasInlineChordFormat(text: string): boolean {
 function transposeChordLine(line: string, semitones: number, targetKey: string): string {
     // Preserve leading whitespace for position alignment
     const leading = line.match(/^(\s*)/)?.[1] ?? '';
-    return leading + line.trimStart().replace(/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?/g, (chord) => {
+    return leading + line.trimStart().replace(/\(?[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?\)?/g, (chord) => {
         return transposeChord(chord, semitones, targetKey);
     });
 }
@@ -75,19 +89,9 @@ const NASHVILLE_DEGREES: Record<number, string> = {
     1: 'b2', 3: 'b3', 6: 'b5', 8: 'b6', 10: 'b7',
 };
 
-// Convert numeric quality digits to Unicode superscripts so "17" reads as "1⁷" not "seventeen"
-const SUP: Record<string, string> = {
-    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-};
-
-function formatNashvilleChord(degree: string, quality: string): string {
-    const superQuality = quality.replace(/\d/g, (d) => SUP[d] ?? d);
-    return degree + superQuality;
-}
-
 function chordToNashville(chord: string, key: string): string {
-    const match = chord.match(/^([A-G][b#]?)(.*)$/);
+    const [inner, left, right] = stripParens(chord);
+    const match = inner.match(/^([A-G][b#]?)(.*)$/);
     if (!match) { return chord; }
     const [, root, suffix] = match;
     const rootIdx = CHROMATIC.indexOf(normalizeKey(root));
@@ -95,24 +99,32 @@ function chordToNashville(chord: string, key: string): string {
     if (rootIdx === -1 || keyIdx === -1) { return chord; }
     const semitones = (rootIdx - keyIdx + 12) % 12;
     const degree = NASHVILLE_DEGREES[semitones] ?? '?';
-    // Handle slash chords: G/B → 5/3
+    // Handle slash chords: G/B → 5/3 (drop quality on both)
     const slashIdx = suffix.lastIndexOf('/');
     if (slashIdx !== -1) {
         const bassRoot = suffix.slice(slashIdx + 1);
         const bassIdx = CHROMATIC.indexOf(normalizeKey(bassRoot));
         if (bassIdx !== -1) {
             const bassDegree = NASHVILLE_DEGREES[(bassIdx - keyIdx + 12) % 12] ?? '?';
-            return formatNashvilleChord(degree, suffix.slice(0, slashIdx)) + '/' + bassDegree;
+            return left + degree + '/' + bassDegree + right;
         }
     }
-    return formatNashvilleChord(degree, suffix);
+    return left + degree + right;
 }
 
 // Convert a full chord chart line to Nashville (only converts chord tokens, preserves spacing)
 function lineToNashville(line: string, key: string): string {
-    return line.replace(/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?/g, (chord) =>
-        chordToNashville(chord, key),
-    );
+    return line.replace(/\(?[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*(\/[A-G][b#]?(m|M|maj|min|dim|aug|sus|add|no|\d+)*)?\)?/g, (chord) => {
+        const converted = chordToNashville(chord, key);
+        // Pad with trailing spaces to keep the original column width so subsequent
+        // chords stay aligned. Add extra padding because digits are visually
+        // narrower than letters in proportional fonts.
+        if (converted.length < chord.length) {
+            const diff = chord.length - converted.length;
+            return converted + ' '.repeat(diff * 2);
+        }
+        return converted;
+    });
 }
 
 // Convert full chord chart text to Nashville numbers

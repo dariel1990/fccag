@@ -11,9 +11,11 @@ const props = defineProps<{
 }>();
 
 const chordClass = computed(() =>
-    props.live
-        ? 'text-yellow-300 font-bold'
-        : 'text-primary font-semibold',
+    props.live ? '' : 'text-primary',
+);
+
+const chordStyle = computed(() =>
+    props.live ? { color: 'var(--lt-chord, #fde047)' } : {},
 );
 
 const { transposeAuto } = useChordTransposer();
@@ -107,6 +109,60 @@ function parseInlineFormat(text: string): ParsedLine[] {
     });
 }
 
+// ─── Chord-lyric pair → inline tokens ────────────────────────────────────────
+
+function chordLyricToTokens(chords: string, lyrics: string): InlineToken[] {
+    const positions: { chord: string; pos: number }[] = [];
+    const regex = /\S+/g;
+    let m: RegExpExecArray | null;
+    while ((m = regex.exec(chords)) !== null) {
+        positions.push({ chord: m[0], pos: m.index });
+    }
+
+    if (!positions.length) {
+        return [{ chord: null, text: lyrics }];
+    }
+
+    // When chords extend past the end of the lyric line, pad the lyric with
+    // spaces so the original chord-line column spacing is preserved.
+    const last = positions[positions.length - 1];
+    const chordLineEnd = last.pos + last.chord.length;
+    const paddedLyrics = lyrics.length >= chordLineEnd ? lyrics : lyrics.padEnd(chordLineEnd, ' ');
+
+    // Snap a split position back to the start of the word it falls inside,
+    // but never before `min` (the previous split point).
+    function snapToWordStart(pos: number, min: number): number {
+        if (pos <= min || pos >= paddedLyrics.length) return Math.max(pos, min);
+        if (paddedLyrics[pos - 1] === ' ' || paddedLyrics[pos - 1] === undefined) return pos;
+        let i = pos;
+        while (i > min && paddedLyrics[i - 1] !== ' ') i--;
+        return i;
+    }
+
+    const tokens: InlineToken[] = [];
+    const adjusted: { chord: string; pos: number }[] = [];
+    let prev = 0;
+
+    for (const { chord, pos } of positions) {
+        const snapped = snapToWordStart(pos, prev);
+        adjusted.push({ chord, pos: snapped });
+        prev = snapped;
+    }
+
+    if (adjusted[0].pos > 0) {
+        tokens.push({ chord: null, text: paddedLyrics.slice(0, adjusted[0].pos) });
+    }
+
+    for (let i = 0; i < adjusted.length; i++) {
+        const { chord, pos } = adjusted[i];
+        const end = i + 1 < adjusted.length ? adjusted[i + 1].pos : undefined;
+        const text = end !== undefined ? paddedLyrics.slice(pos, end) : paddedLyrics.slice(pos);
+        tokens.push({ chord, text: text || ' ' });
+    }
+
+    return tokens;
+}
+
 // ─── Computed ─────────────────────────────────────────────────────────────────
 
 const parsedLines = computed<ParsedLine[]>(() => {
@@ -135,22 +191,24 @@ const parsedLines = computed<ParsedLine[]>(() => {
 </script>
 
 <template>
-    <div class="select-text font-mono leading-relaxed">
+    <div class="select-text text-sm leading-relaxed" style="font-family: var(--font-chord)">
         <template v-for="(line, i) in parsedLines" :key="i">
             <!-- [Intro] / [Verse 1] / [Chorus] section headers -->
             <div
                 v-if="line.kind === 'section'"
-                :class="[
-                    'mt-5 mb-1 text-xs font-bold uppercase tracking-widest first:mt-0',
-                    live ? 'text-white/40' : 'text-muted-foreground',
-                ]"
+                class="mt-5 mb-1 text-xs font-bold uppercase tracking-widest first:mt-0"
+                :style="live ? { color: 'var(--lt-muted, rgba(255,255,255,0.4))' } : {}"
+                :class="{ 'text-muted-foreground': !live }"
             >
                 {{ line.label }}
             </div>
 
-            <!-- Chord line paired with lyric line below it -->
+            <!-- Chord line paired with lyric line — rendered as two stacked rows -->
             <div v-else-if="line.kind === 'chord-lyric'" class="mb-3">
-                <div :class="[chordClass, 'whitespace-pre leading-tight']">{{ line.chords }}</div>
+                <div
+                    :class="[chordClass, 'whitespace-pre leading-snug']"
+                    :style="chordStyle"
+                >{{ line.chords }}</div>
                 <div class="whitespace-pre leading-snug">{{ line.lyrics }}</div>
             </div>
 
@@ -158,6 +216,7 @@ const parsedLines = computed<ParsedLine[]>(() => {
             <div
                 v-else-if="line.kind === 'chord-only'"
                 :class="[chordClass, 'mb-1 whitespace-pre leading-snug']"
+                :style="chordStyle"
             >
                 {{ line.chords }}
             </div>
@@ -176,9 +235,10 @@ const parsedLines = computed<ParsedLine[]>(() => {
                 >
                     <span
                         v-if="token.chord"
-                        :class="[chordClass, 'min-w-[1ch] text-xs leading-none']"
+                        :class="[chordClass, 'min-w-[1ch] leading-snug']"
+                        :style="chordStyle"
                     >{{ token.chord }}</span>
-                    <span v-else class="text-xs leading-none">&nbsp;</span>
+                    <span v-else class="leading-snug">&nbsp;</span>
                     <span class="leading-snug">{{ token.text || ' ' }}</span>
                 </span>
             </div>

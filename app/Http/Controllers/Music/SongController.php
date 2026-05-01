@@ -39,7 +39,7 @@ class SongController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        return to_route('music.songs.index');
+        return redirect()->back();
     }
 
     public function update(UpdateSongRequest $request, Song $song): RedirectResponse

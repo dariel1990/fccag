@@ -157,6 +157,59 @@ class SetlistControllerTest extends TestCase
         $response->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('music/setlists/Live')
+                ->where('isPublic', false)
             );
+    }
+
+    public function test_can_enable_share_token(): void
+    {
+        $user = User::factory()->withPermissions([
+            Module::Setlists->value => [PermissionAction::Read->value, PermissionAction::Update->value],
+        ])->create();
+
+        $setlist = Setlist::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('music.setlists.share.enable', $setlist))
+            ->assertRedirect();
+
+        $setlist->refresh();
+        $this->assertNotNull($setlist->share_token);
+        $this->assertEquals(40, strlen($setlist->share_token));
+    }
+
+    public function test_can_disable_share_token(): void
+    {
+        $user = User::factory()->withPermissions([
+            Module::Setlists->value => [PermissionAction::Read->value, PermissionAction::Update->value],
+        ])->create();
+
+        $setlist = Setlist::factory()->create(['share_token' => 'existing-token']);
+
+        $this->actingAs($user)
+            ->delete(route('music.setlists.share.disable', $setlist))
+            ->assertRedirect();
+
+        $setlist->refresh();
+        $this->assertNull($setlist->share_token);
+    }
+
+    public function test_public_share_link_does_not_require_auth(): void
+    {
+        $setlist = Setlist::factory()->create(['share_token' => 'public-test-token']);
+
+        $response = $this->get(route('setlists.public.live', ['token' => 'public-test-token']));
+
+        $response->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('music/setlists/Live')
+                ->where('isPublic', true)
+            );
+    }
+
+    public function test_public_share_link_returns_404_for_invalid_token(): void
+    {
+        $this->get(route('setlists.public.live', ['token' => 'does-not-exist']))
+            ->assertNotFound();
     }
 }

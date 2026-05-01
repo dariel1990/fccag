@@ -133,6 +133,7 @@ function submit(): void {
 
     const options = {
         preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             emit('saved');
             handleClose();
@@ -318,7 +319,8 @@ function handleClose(): void {
                             v-model="form.lyrics_with_chords"
                             required
                             :placeholder="'[Verse 1]\nG        Em\nAmazing grace how sweet the sound\nC        G\nThat saved a wretch like me'"
-                            class="min-h-52 font-mono text-sm"
+                            class="min-h-52 text-sm"
+                            style="font-family: var(--font-chord)"
                         />
                         <p class="text-muted-foreground text-xs">
                             Write chords on their own line above the lyrics. Use <code>[Verse 1]</code>, <code>[Chorus]</code> etc. for section labels.

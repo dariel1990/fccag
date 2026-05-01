@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Pencil, Play } from 'lucide-vue-next';
+import { Check, Copy, Pencil, Play, Share2, Trash2 } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import {
+    disableShare as disableShareSetlist,
+    enableShare as enableShareSetlist,
     index as setlistsIndex,
     live as setlistLive,
     show as showSetlist,
@@ -12,6 +14,7 @@ import { reorder as reorderSetlistSongs } from '@/actions/App/Http/Controllers/M
 import Heading from '@/components/Heading.vue';
 import SetlistFormDialog from '@/components/music/SetlistFormDialog.vue';
 import SetlistSongRow from '@/components/music/SetlistSongRow.vue';
+import SongFormDialog from '@/components/music/SongFormDialog.vue';
 import SongPickerDialog from '@/components/music/SongPickerDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +45,7 @@ type Setlist = {
     theme: string | null;
     notes: string | null;
     status: string;
+    share_token: string | null;
     songs: SetlistSong[];
 };
 
@@ -57,6 +61,51 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
 const editDialogOpen = ref(false);
 const songPickerOpen = ref(false);
+const newSongDialogOpen = ref(false);
+const sharePanelOpen = ref(false);
+const justCopied = ref(false);
+
+const shareUrl = computed(() => {
+    if (!props.setlist.share_token) { return ''; }
+    return `${window.location.origin}/share/setlists/${props.setlist.share_token}/live`;
+});
+
+function enableShare(): void {
+    router.post(
+        enableShareSetlist(props.setlist.id).url,
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                sharePanelOpen.value = true;
+            },
+        },
+    );
+}
+
+function disableShare(): void {
+    if (!confirm('Disable sharing? The current link will stop working.')) { return; }
+    router.delete(
+        disableShareSetlist(props.setlist.id).url,
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                sharePanelOpen.value = false;
+            },
+        },
+    );
+}
+
+async function copyShareUrl(): Promise<void> {
+    if (!shareUrl.value) { return; }
+    try {
+        await navigator.clipboard.writeText(shareUrl.value);
+        justCopied.value = true;
+        setTimeout(() => { justCopied.value = false; }, 1500);
+    } catch {
+        // Clipboard not available — fall back to selection
+    }
+}
 
 const localSongs = ref([...props.setlist.songs].sort((a, b) => a.pivot_order - b.pivot_order));
 watch(() => props.setlist, (setlist) => {
@@ -127,6 +176,20 @@ function handleSongRemoved(): void {
 function handleSongEdited(): void {
     router.reload({ only: ['setlist'] });
 }
+
+function handleCreateNewSong(): void {
+    songPickerOpen.value = false;
+    newSongDialogOpen.value = true;
+}
+
+function handleNewSongSaved(): void {
+    router.reload({
+        only: ['availableSongs'],
+        onSuccess: () => {
+            songPickerOpen.value = true;
+        },
+    });
+}
 </script>
 
 <template>
@@ -154,6 +217,10 @@ function handleSongEdited(): void {
                         <Pencil class="mr-2 h-4 w-4" />
                         Edit
                     </Button>
+                    <Button variant="outline" size="sm" class="flex-1 sm:flex-none" @click="sharePanelOpen = !sharePanelOpen">
+                        <Share2 class="mr-2 h-4 w-4" />
+                        Share
+                    </Button>
                     <Link :href="setlistLive(setlist.id).url" class="flex-1 sm:flex-none">
                         <Button size="sm" class="w-full">
                             <Play class="mr-2 h-4 w-4" />
@@ -161,6 +228,47 @@ function handleSongEdited(): void {
                         </Button>
                     </Link>
                 </div>
+            </div>
+
+            <!-- Share panel -->
+            <div
+                v-if="sharePanelOpen"
+                class="bg-muted/50 border-border space-y-3 rounded-md border p-4"
+            >
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium">Public share link</p>
+                        <p class="text-muted-foreground text-xs">
+                            Anyone with the link can view this setlist's Live view.
+                        </p>
+                    </div>
+                    <Button variant="ghost" size="sm" @click="sharePanelOpen = false">Close</Button>
+                </div>
+
+                <div v-if="setlist.share_token" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <input
+                        :value="shareUrl"
+                        readonly
+                        class="border-input bg-background flex-1 rounded-md border px-3 py-2 text-sm font-mono"
+                        @focus="($event.target as HTMLInputElement).select()"
+                    />
+                    <div class="flex gap-2">
+                        <Button variant="outline" size="sm" @click="copyShareUrl">
+                            <Check v-if="justCopied" class="mr-2 h-3.5 w-3.5" />
+                            <Copy v-else class="mr-2 h-3.5 w-3.5" />
+                            {{ justCopied ? 'Copied' : 'Copy' }}
+                        </Button>
+                        <Button variant="outline" size="sm" @click="disableShare">
+                            <Trash2 class="mr-2 h-3.5 w-3.5" />
+                            Disable
+                        </Button>
+                    </div>
+                </div>
+
+                <Button v-else size="sm" @click="enableShare">
+                    <Share2 class="mr-2 h-3.5 w-3.5" />
+                    Generate share link
+                </Button>
             </div>
 
             <!-- Notes -->
@@ -215,6 +323,12 @@ function handleSongEdited(): void {
             :existing-song-ids="existingSongIds"
             :songs="availableSongs"
             @added="handleSongAdded"
+            @create="handleCreateNewSong"
+        />
+
+        <SongFormDialog
+            v-model:open="newSongDialogOpen"
+            @saved="handleNewSongSaved"
         />
     </AppLayout>
 </template>

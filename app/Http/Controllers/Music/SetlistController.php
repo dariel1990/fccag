@@ -27,7 +27,7 @@ class SetlistController extends Controller
     {
         return Inertia::render('music/setlists/Show', [
             'setlist' => [
-                ...$setlist->only(['id', 'title', 'service_date', 'theme', 'notes', 'status']),
+                ...$setlist->only(['id', 'title', 'service_date', 'theme', 'notes', 'status', 'share_token']),
                 'songs' => $setlist->songs()
                     ->get()
                     ->map(fn ($song) => [
@@ -56,7 +56,36 @@ class SetlistController extends Controller
 
     public function live(Setlist $setlist): Response
     {
-        return Inertia::render('music/setlists/Live', [
+        return Inertia::render('music/setlists/Live', $this->livePayload($setlist, false));
+    }
+
+    public function publicLive(string $token): Response
+    {
+        $setlist = Setlist::where('share_token', $token)->firstOrFail();
+
+        return Inertia::render('music/setlists/Live', $this->livePayload($setlist, true));
+    }
+
+    public function enableShare(Setlist $setlist): RedirectResponse
+    {
+        $setlist->ensureShareToken();
+
+        return redirect()->back();
+    }
+
+    public function disableShare(Setlist $setlist): RedirectResponse
+    {
+        $setlist->clearShareToken();
+
+        return redirect()->back();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function livePayload(Setlist $setlist, bool $isPublic): array
+    {
+        return [
             'setlist' => [
                 ...$setlist->only(['id', 'title', 'service_date', 'theme']),
                 'songs' => $setlist->songs()
@@ -72,7 +101,8 @@ class SetlistController extends Controller
                         'pivot_notes' => $song->pivot->notes,
                     ]),
             ],
-        ]);
+            'isPublic' => $isPublic,
+        ];
     }
 
     public function store(StoreSetlistRequest $request): RedirectResponse

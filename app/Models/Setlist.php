@@ -19,6 +19,7 @@ class Setlist extends Model
         'theme',
         'notes',
         'status',
+        'share_token',
     ];
 
     protected function casts(): array
@@ -39,5 +40,19 @@ class Setlist extends Model
             ->withPivot(['order', 'key_override', 'notes'])
             ->orderBy('setlist_songs.order')
             ->withTimestamps();
+    }
+
+    public function ensureShareToken(): string
+    {
+        if (! $this->share_token) {
+            $this->forceFill(['share_token' => \Illuminate\Support\Str::random(40)])->save();
+        }
+
+        return $this->share_token;
+    }
+
+    public function clearShareToken(): void
+    {
+        $this->forceFill(['share_token' => null])->save();
     }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
+import { Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { store as storeSetlistSong } from '@/actions/App/Http/Controllers/Music/SetlistSongController';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     'update:open': [value: boolean];
     added: [];
+    create: [];
 }>();
 
 const search = ref('');
@@ -80,8 +82,12 @@ function handleClose(): void {
                 <DialogDescription>Search and select a song to add to this setlist.</DialogDescription>
             </DialogHeader>
 
-            <div class="shrink-0 px-6 pt-4">
+            <div class="shrink-0 space-y-2 px-6 pt-4">
                 <Input v-model="search" placeholder="Search by title or artist..." autofocus />
+                <Button type="button" size="sm" class="w-full" @click="emit('create')">
+                    <Plus class="mr-1.5 h-3.5 w-3.5" />
+                    Add a New song
+                </Button>
             </div>
 
             <div class="flex-1 overflow-y-auto px-6 py-3">
