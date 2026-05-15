@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { useSwipe } from '@vueuse/core';
-import { Palette, X } from 'lucide-vue-next';
+import { onClickOutside, useSwipe } from '@vueuse/core';
+import { AlignLeft, ChevronDown, FileText, Guitar, Hash, Maximize2, Minimize2, Minus, Music2, Palette, Play, Plus, RotateCcw, X } from 'lucide-vue-next';
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { show as setlistShow } from '@/actions/App/Http/Controllers/Music/SetlistController';
 import ChordDisplay from '@/components/music/ChordDisplay.vue';
-import KeyTransposer from '@/components/music/KeyTransposer.vue';
 import PerformanceNav from '@/components/music/PerformanceNav.vue';
+import { useChordTransposer } from '@/composables/useChordTransposer';
 
 type LiveSong = {
     id: number;
@@ -16,6 +16,7 @@ type LiveSong = {
     display_key: string;
     lyrics_with_chords: string;
     tempo: number | null;
+    video_link: string | null;
     pivot_notes: string | null;
 };
 
@@ -122,14 +123,91 @@ const THEMES: LiveTheme[] = [
 ];
 
 const THEME_KEY = 'live-theme';
+const VIEW_MODE_KEY = 'live-view-mode';
+
+type ViewMode = 'both' | 'lyrics' | 'chords';
+
+function readStoredViewMode(): ViewMode {
+    const stored = localStorage.getItem(VIEW_MODE_KEY);
+    return stored === 'lyrics' || stored === 'chords' ? stored : 'both';
+}
 
 const props = defineProps<{ setlist: LiveSetlist; isPublic?: boolean }>();
 
 const currentIndex = ref(0);
 const displayKeys = ref<Record<number, string>>({});
 const mode = ref<'chord' | 'nashville'>('chord');
+const viewMode = ref<ViewMode>(readStoredViewMode());
 const showThemePicker = ref(false);
 const activeThemeId = ref(localStorage.getItem(THEME_KEY) ?? 'dark');
+const isFullscreen = ref(false);
+const showVideo = ref(false);
+
+function setViewMode(next: ViewMode): void {
+    viewMode.value = next;
+    localStorage.setItem(VIEW_MODE_KEY, next);
+}
+
+function toggleFullscreen(): void {
+    isFullscreen.value = !isFullscreen.value;
+}
+
+const { keys: allKeys } = useChordTransposer();
+const keyPickerOpen = ref(false);
+const keyPickerTriggerEl = ref<HTMLElement | null>(null);
+const keyPickerPanelEl = ref<HTMLElement | null>(null);
+const keyPickerPos = ref({ top: 0, left: 0 });
+const KEY_PANEL_WIDTH = 224;
+
+function updateKeyPickerPos(): void {
+    if (!keyPickerTriggerEl.value) { return; }
+    const rect = keyPickerTriggerEl.value.getBoundingClientRect();
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - KEY_PANEL_WIDTH - 8));
+    keyPickerPos.value = { top: rect.bottom + 8, left };
+}
+
+const currentSong = computed(() => props.setlist.songs[currentIndex.value] ?? null);
+
+const videoEmbedUrl = computed(() => {
+    const url = currentSong.value?.video_link;
+    if (!url) { return null; }
+
+    const youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    if (youtube) {
+        return `https://www.youtube.com/embed/${youtube[1]}?autoplay=1`;
+    }
+
+    const vimeo = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeo) {
+        return `https://player.vimeo.com/video/${vimeo[1]}?autoplay=1`;
+    }
+
+    return url;
+});
+const prevSong = computed(() => props.setlist.songs[currentIndex.value - 1] ?? null);
+const nextSong = computed(() => props.setlist.songs[currentIndex.value + 1] ?? null);
+
+function stepKey(direction: 1 | -1): void {
+    if (!currentSong.value) { return; }
+    const current = getDisplayKey(currentSong.value);
+    const idx = allKeys.indexOf(current);
+    if (idx === -1) { return; }
+    const nextIdx = (idx + direction + allKeys.length) % allKeys.length;
+    setDisplayKey(allKeys[nextIdx]);
+}
+
+async function toggleKeyPicker(): Promise<void> {
+    keyPickerOpen.value = !keyPickerOpen.value;
+    if (keyPickerOpen.value) {
+        await nextTick();
+        updateKeyPickerPos();
+    }
+}
+
+onClickOutside(keyPickerPanelEl, (event) => {
+    if (keyPickerTriggerEl.value?.contains(event.target as Node)) { return; }
+    keyPickerOpen.value = false;
+});
 
 const currentTheme = computed(() => THEMES.find(t => t.id === activeThemeId.value) ?? THEMES[0]);
 
@@ -175,9 +253,6 @@ function handleChartScroll(): void {
         isScrolling.value = false;
     }, 800);
 }
-const currentSong = computed(() => props.setlist.songs[currentIndex.value] ?? null);
-const prevSong = computed(() => props.setlist.songs[currentIndex.value - 1] ?? null);
-const nextSong = computed(() => props.setlist.songs[currentIndex.value + 1] ?? null);
 
 function getDisplayKey(song: LiveSong): string {
     return displayKeys.value[song.id] ?? song.display_key;
@@ -191,18 +266,21 @@ function setDisplayKey(key: string): void {
 
 function goNext(): void {
     if (currentIndex.value < props.setlist.songs.length - 1) {
+        showVideo.value = false;
         currentIndex.value++;
     }
 }
 
 function goPrev(): void {
     if (currentIndex.value > 0) {
+        showVideo.value = false;
         currentIndex.value--;
     }
 }
 
 function goTo(index: number): void {
     if (index >= 0 && index < props.setlist.songs.length) {
+        showVideo.value = false;
         currentIndex.value = index;
     }
 }
@@ -213,7 +291,15 @@ function handleKeydown(e: KeyboardEvent): void {
     } else if (e.key === 'ArrowLeft') {
         goPrev();
     } else if (e.key === 'Escape') {
-        showThemePicker.value = false;
+        if (showVideo.value) {
+            showVideo.value = false;
+        } else if (isFullscreen.value) {
+            isFullscreen.value = false;
+        } else {
+            showThemePicker.value = false;
+        }
+    } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
     } else if (e.key >= '1' && e.key <= '9') {
         goTo(Number(e.key) - 1);
     }
@@ -238,13 +324,21 @@ async function requestWakeLock(): Promise<void> {
     }
 }
 
+function handleViewportChange(): void {
+    if (keyPickerOpen.value) { updateKeyPickerPos(); }
+}
+
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('scroll', handleViewportChange, true);
     requestWakeLock();
 });
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
+    window.removeEventListener('resize', handleViewportChange);
+    window.removeEventListener('scroll', handleViewportChange, true);
     wakeLock?.release();
 });
 </script>
@@ -257,6 +351,7 @@ onUnmounted(() => {
     >
         <!-- Fixed header -->
         <header
+            v-show="!isFullscreen"
             class="shrink-0 flex items-center justify-between px-4 py-3"
             :style="{ borderBottom: `1px solid ${currentTheme.border}` }"
         >
@@ -352,64 +447,152 @@ onUnmounted(() => {
                 <!-- Song title (fixed) -->
                 <div class="shrink-0 pt-6 mb-3">
                     <h1 class="text-2xl font-bold leading-tight md:text-3xl">{{ currentSong.title }}</h1>
-                    <p v-if="currentSong.artist" class="mt-0.5 text-sm" :style="{ color: currentTheme.muted }">
+                    <p v-if="currentSong.artist && !isFullscreen" class="mt-0.5 text-sm" :style="{ color: currentTheme.muted }">
                         {{ currentSong.artist }}
                     </p>
                 </div>
 
                 <!-- Controls toolbar (fixed) -->
                 <div
-                    class="shrink-0 mb-5 flex flex-wrap items-center gap-2 pb-4"
+                    class="shrink-0 mb-5 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-4 sm:gap-2"
                     :style="{ borderBottom: `1px solid ${currentTheme.border}` }"
                 >
-                    <!-- Key transposer -->
-                    <KeyTransposer
-                        :key="'kt-' + currentSong.id"
-                        :model-value="getDisplayKey(currentSong)"
-                        :original-key="currentSong.original_key"
-                        @update:model-value="setDisplayKey"
-                    />
-
-                    <!-- Chord / Nashville toggle -->
-                    <div class="inline-flex rounded-md p-0.5" :style="{ backgroundColor: currentTheme.ctrlBg }">
+                    <!-- Modern key picker with step buttons -->
+                    <div class="inline-flex shrink-0 items-stretch overflow-hidden rounded-md" :style="{ backgroundColor: currentTheme.ctrlBg }">
                         <button
                             type="button"
-                            class="rounded px-2.5 py-1 text-xs font-medium transition-colors"
+                            class="flex h-8 w-7 items-center justify-center transition-colors"
+                            :style="{ color: currentTheme.text }"
+                            title="Transpose down"
+                            @click="stepKey(-1)"
+                        ><Minus class="size-3.5" /></button>
+                        <button
+                            ref="keyPickerTriggerEl"
+                            type="button"
+                            class="flex h-8 items-center gap-1.5 px-2.5 transition-colors"
+                            :style="{
+                                backgroundColor: keyPickerOpen ? currentTheme.ctrlActive : 'transparent',
+                                color: keyPickerOpen ? currentTheme.ctrlActiveText : currentTheme.text,
+                            }"
+                            @click="toggleKeyPicker"
+                        >
+                            <span class="text-[10px] font-semibold uppercase tracking-wider opacity-60">Key</span>
+                            <span class="text-sm font-bold tabular-nums">{{ getDisplayKey(currentSong) }}</span>
+                            <ChevronDown class="size-3.5 transition-transform" :class="{ 'rotate-180': keyPickerOpen }" />
+                        </button>
+                        <button
+                            type="button"
+                            class="flex h-8 w-7 items-center justify-center transition-colors"
+                            :style="{ color: currentTheme.text }"
+                            title="Transpose up"
+                            @click="stepKey(1)"
+                        ><Plus class="size-3.5" /></button>
+                    </div>
+
+                    <!-- Chord / Nashville toggle -->
+                    <div class="inline-flex shrink-0 rounded-md p-0.5" :style="{ backgroundColor: currentTheme.ctrlBg }">
+                        <button
+                            type="button"
+                            class="flex items-center justify-center size-7 rounded transition-colors"
                             :style="mode === 'chord'
                                 ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
                                 : { color: currentTheme.muted }"
+                            title="Chord names"
                             @click="mode = 'chord'"
-                        >Chords</button>
+                        ><Guitar class="size-3.5" /></button>
                         <button
                             type="button"
-                            class="rounded px-2.5 py-1 text-xs font-medium transition-colors"
+                            class="flex items-center justify-center size-7 rounded transition-colors"
                             :style="mode === 'nashville'
                                 ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
                                 : { color: currentTheme.muted }"
+                            title="Nashville numbers"
                             @click="mode = 'nashville'"
-                        >Nashville</button>
+                        ><Hash class="size-3.5" /></button>
                     </div>
+
+                    <!-- View mode toggle: both / lyrics / chords -->
+                    <div class="inline-flex shrink-0 rounded-md p-0.5" :style="{ backgroundColor: currentTheme.ctrlBg }">
+                        <button
+                            type="button"
+                            class="flex items-center justify-center size-7 rounded transition-colors"
+                            :style="viewMode === 'both'
+                                ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
+                                : { color: currentTheme.muted }"
+                            title="Lyrics + chords"
+                            @click="setViewMode('both')"
+                        ><AlignLeft class="size-3.5" /></button>
+                        <button
+                            type="button"
+                            class="flex items-center justify-center size-7 rounded transition-colors"
+                            :style="viewMode === 'lyrics'
+                                ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
+                                : { color: currentTheme.muted }"
+                            title="Lyrics only"
+                            @click="setViewMode('lyrics')"
+                        ><FileText class="size-3.5" /></button>
+                        <button
+                            type="button"
+                            class="flex items-center justify-center size-7 rounded transition-colors"
+                            :style="viewMode === 'chords'
+                                ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
+                                : { color: currentTheme.muted }"
+                            title="Chords only"
+                            @click="setViewMode('chords')"
+                        ><Music2 class="size-3.5" /></button>
+                    </div>
+
+                    <!-- Play video inline -->
+                    <button
+                        v-if="currentSong.video_link"
+                        type="button"
+                        class="ml-auto flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 transition-colors"
+                        :style="{ backgroundColor: currentTheme.ctrlBg, color: currentTheme.text }"
+                        title="Play video"
+                        @click="showVideo = true"
+                    >
+                        <Play class="size-3.5" />
+                        <span class="text-xs font-semibold">Play</span>
+                    </button>
                 </div>
 
-                <!-- Chord chart (scrollable) -->
-                <div
-                    class="chord-scroll flex-1 overflow-y-auto rounded-lg p-4 text-sm md:p-6"
-                    :class="{ 'is-scrolling': isScrolling }"
-                    :style="{ backgroundColor: currentTheme.surface }"
-                    @scroll.passive="handleChartScroll"
-                >
-                    <ChordDisplay
-                        :key="'cd-' + currentSong.id + '-' + mode"
-                        :lyrics="currentSong.lyrics_with_chords"
-                        :original-key="currentSong.original_key"
-                        :display-key="getDisplayKey(currentSong)"
-                        :mode="mode"
-                        live
-                    />
+                <!-- Chord chart (scrollable) with fullscreen toggle -->
+                <div class="relative flex flex-1 overflow-hidden rounded-lg" :style="{ backgroundColor: currentTheme.surface }">
+                    <div
+                        class="chord-scroll flex-1 overflow-y-auto p-4 text-sm md:p-6"
+                        :class="{ 'is-scrolling': isScrolling }"
+                        @scroll.passive="handleChartScroll"
+                    >
+                        <ChordDisplay
+                            :key="'cd-' + currentSong.id + '-' + mode"
+                            :lyrics="currentSong.lyrics_with_chords"
+                            :original-key="currentSong.original_key"
+                            :display-key="getDisplayKey(currentSong)"
+                            :mode="mode"
+                            :view-mode="viewMode"
+                            live
+                        />
 
-                    <p v-if="currentSong.pivot_notes" class="mt-4 text-sm italic" :style="{ color: currentTheme.muted }">
-                        {{ currentSong.pivot_notes }}
-                    </p>
+                        <p v-if="currentSong.pivot_notes" class="mt-4 text-sm italic" :style="{ color: currentTheme.muted }">
+                            {{ currentSong.pivot_notes }}
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="fullscreen-toggle absolute bottom-3 right-3 flex items-center justify-center size-9 rounded-md transition-opacity duration-200"
+                        :class="{ 'is-visible': isScrolling || isFullscreen }"
+                        :style="{
+                            backgroundColor: currentTheme.ctrlBg,
+                            color: currentTheme.text,
+                            border: `1px solid ${currentTheme.border}`,
+                        }"
+                        :title="isFullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (F)'"
+                        @click="toggleFullscreen"
+                    >
+                        <Minimize2 v-if="isFullscreen" class="size-4" />
+                        <Maximize2 v-else class="size-4" />
+                    </button>
                 </div>
 
                 <!-- Spacer to give the scroll panel breathing room above the footer -->
@@ -417,8 +600,97 @@ onUnmounted(() => {
             </div>
         </main>
 
+        <!-- Teleported key picker popover -->
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition-all duration-150 ease-out"
+                enter-from-class="opacity-0 -translate-y-1"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition-all duration-100 ease-in"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-1"
+            >
+                <div
+                    v-if="keyPickerOpen && currentSong"
+                    ref="keyPickerPanelEl"
+                    class="fixed z-[60] w-56 rounded-lg p-2 shadow-xl"
+                    :style="{
+                        top: keyPickerPos.top + 'px',
+                        left: keyPickerPos.left + 'px',
+                        backgroundColor: currentTheme.bg,
+                        border: `1px solid ${currentTheme.border}`,
+                        color: currentTheme.text,
+                    }"
+                >
+                    <div class="mb-2 flex items-center justify-between px-1">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider" :style="{ color: currentTheme.muted }">Transpose</span>
+                        <button
+                            v-if="getDisplayKey(currentSong) !== currentSong.original_key"
+                            type="button"
+                            class="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors"
+                            :style="{ color: currentTheme.muted }"
+                            @click="setDisplayKey(currentSong.original_key); keyPickerOpen = false"
+                        >
+                            <RotateCcw class="size-3" />
+                            <span>{{ currentSong.original_key }}</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-6 gap-1">
+                        <button
+                            v-for="k in allKeys"
+                            :key="k"
+                            type="button"
+                            class="flex h-8 items-center justify-center rounded text-xs font-bold tabular-nums transition-colors"
+                            :style="getDisplayKey(currentSong) === k
+                                ? { backgroundColor: currentTheme.ctrlActive, color: currentTheme.ctrlActiveText }
+                                : { backgroundColor: currentTheme.surface, color: currentTheme.text }"
+                            @click="setDisplayKey(k); keyPickerOpen = false"
+                        >{{ k }}</button>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
+        <!-- In-page video player overlay -->
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition-opacity duration-200 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-150 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div
+                    v-if="showVideo && videoEmbedUrl"
+                    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4"
+                    @click.self="showVideo = false"
+                >
+                    <button
+                        type="button"
+                        class="absolute right-4 top-4 flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                        title="Close (Esc)"
+                        @click="showVideo = false"
+                    >
+                        <X class="size-5" />
+                    </button>
+                    <div class="aspect-video w-full max-w-4xl overflow-hidden rounded-lg bg-black shadow-2xl">
+                        <iframe
+                            :src="videoEmbedUrl"
+                            class="h-full w-full"
+                            title="Song video"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        />
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
         <!-- Fixed footer navigation -->
         <PerformanceNav
+            v-show="!isFullscreen"
             class="shrink-0"
             :current-index="currentIndex"
             :total="setlist.songs.length"
@@ -452,7 +724,16 @@ onUnmounted(() => {
     background: rgba(127, 127, 127, 0.4);
     border-radius: 3px;
 }
+.fullscreen-toggle {
+    opacity: 0.3;
+}
+.fullscreen-toggle.is-visible {
+    opacity: 1;
+}
 @media (hover: hover) {
+    .relative:hover > .fullscreen-toggle {
+        opacity: 1;
+    }
     .chord-scroll:hover {
         scrollbar-width: thin;
         scrollbar-color: rgba(127, 127, 127, 0.4) transparent;

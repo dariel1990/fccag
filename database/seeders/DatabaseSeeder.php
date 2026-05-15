@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             ParticipantSeeder::class,
             ActivitySeeder::class,
             MusicSeeder::class,
+            ServiceTypeSeeder::class,
+            ScheduleRoleSeeder::class,
+            WordPackSeeder::class,
         ]);
     }
 }

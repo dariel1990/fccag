@@ -18,4 +18,8 @@ enum Module: string
     case Posts = 'posts';
     case Songs = 'songs';
     case Setlists = 'setlists';
+    case Schedules = 'schedules';
+    case MusicMembers = 'music_members';
+    case ServiceTypes = 'service_types';
+    case ScheduleRoles = 'schedule_roles';
 }

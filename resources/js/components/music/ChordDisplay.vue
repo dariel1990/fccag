@@ -2,13 +2,16 @@
 import { computed } from 'vue';
 import { convertToNashville, hasInlineChordFormat, isChordLine, useChordTransposer } from '@/composables/useChordTransposer';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     lyrics: string;
     originalKey: string;
     displayKey: string;
     mode?: 'chord' | 'nashville';
+    viewMode?: 'both' | 'lyrics' | 'chords';
     live?: boolean;
-}>();
+}>(), {
+    viewMode: 'both',
+});
 
 const chordClass = computed(() =>
     props.live ? '' : 'text-primary',
@@ -19,6 +22,10 @@ const chordStyle = computed(() =>
 );
 
 const { transposeAuto } = useChordTransposer();
+
+function compactChords(chords: string): string {
+    return chords.trim().split(/\s+/).join('  ');
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -206,41 +213,55 @@ const parsedLines = computed<ParsedLine[]>(() => {
             <!-- Chord line paired with lyric line — rendered as two stacked rows -->
             <div v-else-if="line.kind === 'chord-lyric'" class="mb-3">
                 <div
+                    v-if="viewMode !== 'lyrics'"
                     :class="[chordClass, 'whitespace-pre leading-snug']"
                     :style="chordStyle"
-                >{{ line.chords }}</div>
-                <div class="whitespace-pre leading-snug">{{ line.lyrics }}</div>
+                >{{ viewMode === 'chords' ? compactChords(line.chords) : line.chords }}</div>
+                <div v-if="viewMode !== 'chords'" class="whitespace-pre leading-snug">{{ line.lyrics }}</div>
             </div>
 
             <!-- Chord line with no following lyric (e.g. intro pattern) -->
             <div
-                v-else-if="line.kind === 'chord-only'"
+                v-else-if="line.kind === 'chord-only' && viewMode !== 'lyrics'"
                 :class="[chordClass, 'mb-1 whitespace-pre leading-snug']"
                 :style="chordStyle"
             >
-                {{ line.chords }}
+                {{ viewMode === 'chords' ? compactChords(line.chords) : line.chords }}
             </div>
 
             <!-- Plain lyric line -->
-            <div v-else-if="line.kind === 'lyric-only'" class="mb-1 whitespace-pre leading-snug">
+            <div v-else-if="line.kind === 'lyric-only' && viewMode !== 'chords'" class="mb-1 whitespace-pre leading-snug">
                 {{ line.lyrics }}
             </div>
 
             <!-- Inline [Chord]lyrics format — backward compat for old songs -->
             <div v-else-if="line.kind === 'inline'" class="mb-2 flex flex-wrap">
-                <span
-                    v-for="(token, j) in line.tokens"
-                    :key="j"
-                    class="inline-flex flex-col"
-                >
+                <template v-if="viewMode === 'lyrics'">
+                    <span class="whitespace-pre leading-snug">{{ line.tokens.map(t => t.text).join('') || ' ' }}</span>
+                </template>
+                <template v-else-if="viewMode === 'chords'">
                     <span
-                        v-if="token.chord"
-                        :class="[chordClass, 'min-w-[1ch] leading-snug']"
+                        v-for="(token, j) in line.tokens.filter(t => t.chord)"
+                        :key="j"
+                        :class="[chordClass, 'mr-2 leading-snug']"
                         :style="chordStyle"
                     >{{ token.chord }}</span>
-                    <span v-else class="leading-snug">&nbsp;</span>
-                    <span class="leading-snug">{{ token.text || ' ' }}</span>
-                </span>
+                </template>
+                <template v-else>
+                    <span
+                        v-for="(token, j) in line.tokens"
+                        :key="j"
+                        class="inline-flex flex-col"
+                    >
+                        <span
+                            v-if="token.chord"
+                            :class="[chordClass, 'min-w-[1ch] leading-snug']"
+                            :style="chordStyle"
+                        >{{ token.chord }}</span>
+                        <span v-else class="leading-snug">&nbsp;</span>
+                        <span class="leading-snug">{{ token.text || ' ' }}</span>
+                    </span>
+                </template>
             </div>
 
             <!-- Empty line → paragraph spacing -->

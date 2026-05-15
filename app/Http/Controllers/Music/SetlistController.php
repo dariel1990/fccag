@@ -98,6 +98,7 @@ class SetlistController extends Controller
                         'display_key' => $song->pivot->key_override ?? $song->original_key,
                         'lyrics_with_chords' => $song->lyrics_with_chords,
                         'tempo' => $song->tempo,
+                        'video_link' => $song->video_link,
                         'pivot_notes' => $song->pivot->notes,
                     ]),
             ],

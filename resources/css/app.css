@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@400;600;700;800;900&display=swap');
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
@@ -213,3 +214,261 @@
     --ms-clear-color-hover: var(--foreground);
     --ms-max-height: 14rem;
 }
+/* ==========================================================================
+   Masquerade theme — applied via .theme-masquerade wrapper in GameLayout.
+   ========================================================================== */
+.theme-masquerade {
+    --mq-bg-deep: hsl(243 60% 7%);
+    --mq-surface: hsl(244 50% 22%);
+    --mq-surface-2: hsl(244 45% 28%);
+    --mq-magenta: hsl(326 100% 62%);
+    --mq-cyan: hsl(189 100% 62%);
+    --mq-gold: hsl(48 100% 62%);
+    --mq-mint: hsl(151 100% 62%);
+    --mq-coral: hsl(0 100% 68%);
+    --mq-text: hsl(0 0% 98%);
+    --mq-text-soft: hsl(0 0% 80%);
+    --mq-text-muted: hsl(0 0% 64%);
+
+    background:
+        radial-gradient(circle at 20% 0%, hsl(326 100% 22% / 0.55), transparent 50%),
+        radial-gradient(circle at 80% 100%, hsl(189 100% 22% / 0.5), transparent 50%),
+        radial-gradient(circle at 50% 50%, hsl(48 100% 14% / 0.3), transparent 70%),
+        var(--mq-bg-deep);
+    color: var(--mq-text);
+    font-family: 'Nunito', system-ui, sans-serif;
+    min-height: 100svh;
+}
+
+.theme-masquerade .font-display {
+    font-family: 'Bagel Fat One', system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Card surface */
+.mq-card {
+    background: linear-gradient(180deg, var(--mq-surface) 0%, var(--mq-surface-2) 100%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+    box-shadow: 0 8px 40px hsl(243 60% 4% / 0.5);
+    border-radius: 1.5rem;
+}
+
+/* Buttons */
+.mq-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.875rem;
+    padding: 0.875rem 1.5rem;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.mq-btn:active:not(:disabled) { transform: scale(0.96); }
+.mq-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.mq-btn-primary {
+    background: linear-gradient(135deg, var(--mq-magenta), hsl(286 100% 62%));
+    color: white;
+    box-shadow: 0 6px 24px hsl(326 100% 50% / 0.45),
+        inset 0 1px 0 hsl(0 0% 100% / 0.25);
+}
+.mq-btn-secondary {
+    background: linear-gradient(135deg, var(--mq-cyan), hsl(220 100% 65%));
+    color: hsl(244 50% 12%);
+    box-shadow: 0 6px 24px hsl(189 100% 50% / 0.45),
+        inset 0 1px 0 hsl(0 0% 100% / 0.4);
+}
+.mq-btn-gold {
+    background: linear-gradient(135deg, var(--mq-gold), hsl(35 100% 60%));
+    color: hsl(244 50% 12%);
+    box-shadow: 0 6px 24px hsl(48 100% 50% / 0.5),
+        inset 0 1px 0 hsl(0 0% 100% / 0.4);
+}
+.mq-btn-danger {
+    background: linear-gradient(135deg, var(--mq-coral), hsl(340 100% 60%));
+    color: white;
+    box-shadow: 0 6px 24px hsl(0 100% 50% / 0.45),
+        inset 0 1px 0 hsl(0 0% 100% / 0.25);
+}
+.mq-btn-ghost {
+    background: hsl(0 0% 100% / 0.06);
+    color: var(--mq-text);
+    border: 1px solid hsl(0 0% 100% / 0.12);
+}
+
+/* Inputs */
+.mq-input {
+    background: hsl(0 0% 0% / 0.25);
+    border: 1px solid hsl(0 0% 100% / 0.12);
+    border-radius: 0.875rem;
+    padding: 0.875rem 1rem;
+    color: var(--mq-text);
+    font-weight: 700;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mq-input:focus {
+    outline: none;
+    border-color: var(--mq-magenta);
+    box-shadow: 0 0 0 3px hsl(326 100% 62% / 0.25);
+}
+.mq-input::placeholder {
+    color: hsl(0 0% 100% / 0.35);
+    font-weight: 600;
+}
+
+/* Player chip */
+.mq-chip {
+    background: hsl(0 0% 100% / 0.06);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+    border-radius: 1rem;
+}
+
+/* Animations */
+@keyframes mq-float {
+    0%, 100% { transform: translateY(0) rotate(-8deg); opacity: 0.35; }
+    50% { transform: translateY(-30px) rotate(8deg); opacity: 0.55; }
+}
+@keyframes mq-float-slow {
+    0%, 100% { transform: translateY(0) rotate(6deg); opacity: 0.25; }
+    50% { transform: translateY(-40px) rotate(-6deg); opacity: 0.45; }
+}
+@keyframes mq-pulse-glow {
+    0%, 100% {
+        box-shadow:
+            0 0 0 0 hsl(326 100% 62% / 0.6),
+            0 6px 24px hsl(326 100% 50% / 0.5),
+            inset 0 1px 0 hsl(0 0% 100% / 0.25);
+    }
+    50% {
+        box-shadow:
+            0 0 0 14px hsl(326 100% 62% / 0),
+            0 6px 24px hsl(326 100% 50% / 0.7),
+            inset 0 1px 0 hsl(0 0% 100% / 0.25);
+    }
+}
+@keyframes mq-shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+}
+@keyframes mq-bounce-in {
+    0% { transform: translateY(20px) scale(0.85); opacity: 0; }
+    60% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes mq-pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); }
+}
+@keyframes mq-confetti-fall {
+    0% { transform: translate3d(0, -20vh, 0) rotate(0); opacity: 1; }
+    100% { transform: translate3d(var(--mq-confetti-drift, 0), 110vh, 0) rotate(720deg); opacity: 0; }
+}
+@keyframes mq-spotlight-sweep {
+    0% { transform: translateX(-120%) skewX(-20deg); }
+    100% { transform: translateX(220%) skewX(-20deg); }
+}
+@keyframes mq-wobble {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50% { transform: rotate(1.5deg); }
+}
+@keyframes mq-bounce-dot {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-8px); }
+}
+
+.mq-float { animation: mq-float 8s ease-in-out infinite; }
+.mq-float-slow { animation: mq-float-slow 12s ease-in-out infinite; }
+.mq-pulse-glow { animation: mq-pulse-glow 2.4s ease-in-out infinite; }
+.mq-bounce-in { animation: mq-bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.mq-pop { animation: mq-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.mq-wobble { animation: mq-wobble 3s ease-in-out infinite; transform-origin: center bottom; }
+
+/* Big shimmery title */
+.mq-shimmer-text {
+    background: linear-gradient(
+        90deg,
+        var(--mq-gold) 0%,
+        hsl(48 100% 85%) 25%,
+        var(--mq-gold) 50%,
+        hsl(48 100% 85%) 75%,
+        var(--mq-gold) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: mq-shimmer 3.5s linear infinite;
+    text-shadow: 0 4px 24px hsl(326 100% 50% / 0.35);
+}
+
+/* Decorative background mask layer */
+.mq-bg-decor {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* 3D card flip (role reveal) */
+.mq-flip-scene { perspective: 1200px; }
+.mq-flip-card {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mq-flip-card.is-flipped { transform: rotateY(180deg); }
+.mq-flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+.mq-flip-face-back { transform: rotateY(180deg); }
+
+/* Confetti pieces */
+.mq-confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 60;
+}
+.mq-confetti span {
+    position: absolute;
+    top: 0;
+    font-size: 1.5rem;
+    animation: mq-confetti-fall var(--mq-confetti-dur, 3s) linear var(--mq-confetti-delay, 0s) forwards;
+    will-change: transform, opacity;
+}
+
+/* Loading dots */
+.mq-dots { display: inline-flex; gap: 0.25rem; align-items: center; }
+.mq-dots span {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--mq-magenta);
+    animation: mq-bounce-dot 1.2s infinite both;
+}
+.mq-dots span:nth-child(2) { animation-delay: 0.15s; background: var(--mq-cyan); }
+.mq-dots span:nth-child(3) { animation-delay: 0.3s; background: var(--mq-gold); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .mq-float, .mq-float-slow, .mq-pulse-glow, .mq-shimmer-text,
+    .mq-bounce-in, .mq-pop, .mq-wobble, .mq-confetti span,
+    .mq-dots span, .mq-flip-card {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+

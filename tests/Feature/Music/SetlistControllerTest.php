@@ -150,6 +150,8 @@ class SetlistControllerTest extends TestCase
         ])->create();
 
         $setlist = Setlist::factory()->create();
+        $song = Song::factory()->create(['video_link' => 'https://youtu.be/example']);
+        $setlist->songs()->attach($song->id, ['order' => 1]);
 
         $response = $this->actingAs($user)
             ->get(route('music.setlists.live', $setlist));
@@ -158,6 +160,7 @@ class SetlistControllerTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->component('music/setlists/Live')
                 ->where('isPublic', false)
+                ->where('setlist.songs.0.video_link', 'https://youtu.be/example')
             );
     }
 

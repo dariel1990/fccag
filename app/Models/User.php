@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return $this->getPermissions()->can($module, $action);
     }
+
+    public function musicMember(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(MusicMember::class);
+    }
 }

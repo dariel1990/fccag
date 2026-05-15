@@ -5,6 +5,7 @@ import {
     BookOpen,
     Building2,
     Calendar,
+    CalendarDays,
     ChartBar,
     LayoutGrid,
     Layers,
@@ -32,6 +33,10 @@ import { quarterlyReport } from '@/actions/App/Http/Controllers/ReportController
 import { index as siActivityCategoriesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityCategoryController';
 import { index as songsIndex } from '@/actions/App/Http/Controllers/Music/SongController';
 import { index as setlistsIndex } from '@/actions/App/Http/Controllers/Music/SetlistController';
+import { index as schedulesIndex } from '@/actions/App/Http/Controllers/Music/ScheduleController';
+import { index as musicMembersIndex } from '@/actions/App/Http/Controllers/Music/MusicMemberController';
+import { index as serviceTypesIndex } from '@/actions/App/Http/Controllers/Music/ServiceTypeController';
+import { index as scheduleRolesIndex } from '@/actions/App/Http/Controllers/Music/ScheduleRoleController';
 import { index as siActivitiesIndex } from '@/actions/App/Http/Controllers/Si/SiActivityController';
 import { index as siMembersIndex } from '@/actions/App/Http/Controllers/Si/SiMemberController';
 import { index as siReportsIndex } from '@/actions/App/Http/Controllers/Si/SiReportController';
@@ -188,6 +193,30 @@ const allNavGroups: NavGroupWithPermissions[] = [
                 href: setlistsIndex().url,
                 icon: ListMusic,
                 permission: 'setlists',
+            },
+            {
+                title: 'Schedules',
+                href: schedulesIndex().url,
+                icon: CalendarDays,
+                permission: 'schedules',
+            },
+            {
+                title: 'Music Members',
+                href: musicMembersIndex().url,
+                icon: Users,
+                permission: 'music_members',
+            },
+            {
+                title: 'Service Types',
+                href: serviceTypesIndex().url,
+                icon: Calendar,
+                permission: 'service_types',
+            },
+            {
+                title: 'Schedule Roles',
+                href: scheduleRolesIndex().url,
+                icon: ListChecks,
+                permission: 'schedule_roles',
             },
         ],
     },

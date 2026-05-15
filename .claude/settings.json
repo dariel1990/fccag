@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv 2026_03_23_111007_create_si_activity_categories_table.php 2026_03_23_111001_create_si_activity_categories_table.php)",
+      "Bash(mv 2026_03_23_111007_create_si_members_table.php 2026_03_23_111002_create_si_members_table.php)",
+      "Bash(mv 2026_03_23_111007_create_si_activities_table.php 2026_03_23_111003_create_si_activities_table.php)",
+      "Bash(mv 2026_03_23_111008_create_si_activity_member_table.php 2026_03_23_111004_create_si_activity_member_table.php)",
+      "Bash(mv 2026_03_23_111007_create_si_attendances_table.php 2026_03_23_111005_create_si_attendances_table.php)",
+      "Bash(php -r \":*)"
+    ]
+  }
+}
